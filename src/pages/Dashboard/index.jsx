@@ -7,6 +7,7 @@ import BikeLogo from "../../assets/bike.svg";
 import { Navigation } from "../../components/organisms/Navigation";
 import { Card } from "../../components/atoms/Card";
 import { CardIcon } from "../../components/molecules/CardIcon";
+import { Date } from "../../components/organisms/Date";
 
 export const Dashboard = () => {
   return (
@@ -25,12 +26,12 @@ export const Dashboard = () => {
                 Cabang 1 - Karang Anayar
               </div>
               <div className="flex items-center justify-end w-1/4 text-xs">
-                12 Nov 2024
+                <Date />
               </div>
             </div>
             <Card />
             <div className="flex flex-col p-2 mt-4 items-center justify-center rounded-md bg-green-100">
-              <h1 className="text-2xl font-bold text-green-600">Rp 150.000</h1>
+            <h1 className="text-2xl font-bold text-green-600">Rp 150.000</h1>
               <p className="text-sm">Pendapatan Hari ini</p>
             </div>
             <div className="flex flex-col p-2 mt-4 items-center justify-center rounded-md bg-red-100">

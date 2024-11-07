@@ -7,6 +7,7 @@ import { Rekap } from './pages/Rekap'
 import { Income } from './pages/Income'
 import { Pengeluaran } from './pages/Pengeluaran'
 import { NotePengeluaran } from './pages/NotePengeluaran'
+import { DataKaryawan } from './pages/DataKaryawan'
 
 export default function App() {
   return (
@@ -17,9 +18,10 @@ export default function App() {
           <Route path='/dashboard' element={<Dashboard />} />
           <Route path='/transaksi' element={<Transaksi />} />
           <Route path='/export' element={<Rekap />} />
-          <Route path='/pendapatan' element={<Income />} />
+          <Route path='/pemasukan' element={<Income />} />
           <Route path='/pengeluaran' element={<Pengeluaran />} />
           <Route path='/catatan-pengeluaran' element={<NotePengeluaran />} />
+          <Route path='/data-karyawan' element={<DataKaryawan />} />
         </Route>
       </Routes>
     </BrowserRouter>
