@@ -21,7 +21,7 @@ export default function App() {
           <Route path='/pemasukan' element={<Income />} />
           <Route path='/pengeluaran' element={<Pengeluaran />} />
           <Route path='/catatan-pengeluaran' element={<NotePengeluaran />} />
-          <Route path='/data-karyawan' element={<DataKaryawan />} />
+          {/* <Route path='/data-karyawan' element={<DataKaryawan />} /> */}
         </Route>
       </Routes>
     </BrowserRouter>

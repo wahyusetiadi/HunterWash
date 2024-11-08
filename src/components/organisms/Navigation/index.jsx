@@ -62,14 +62,14 @@ export const Navigation = () => {
                 Export Rekap
               </Link>
             </li>
-            <li>
+            {/* <li>
               <Link
                 to="/data-karyawan"
                 className="block py-2 px-4 hover:bg-gray-200"
               >
                 Data Karyawan
               </Link>
-            </li>
+            </li> */}
             <li>
               <Link
                 to="/pemasukan"
