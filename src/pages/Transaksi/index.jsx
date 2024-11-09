@@ -2,48 +2,48 @@ import React, { useState } from 'react';
 import { CardIcon } from '../../components/molecules/CardIcon';
 import { Navigation } from '../../components/organisms/Navigation';
 import BikeLogo from '../../assets/bike.svg';
-import Camera from '../../components/molecules/FileUpload';
+// Hapus import Camera karena upload foto tidak digunakan sementara
+// import Camera from '../../components/molecules/FileUpload';
+import { addTransaction } from '../../api/api'; // Impor fungsi API untuk menambahkan transaksi
 
 export const Transaksi = () => {
-    // State untuk menangani data form dan foto
+    // State untuk menangani data form
     const [nomorPolisi, setNomorPolisi] = useState('');
     const [jenisKendaraan, setJenisKendaraan] = useState('');
     const [harga, setHarga] = useState('');
     const [petugas, setPetugas] = useState('');
-    const [photo, setPhoto] = useState(null); // Foto yang diambil
 
-    // Fungsi untuk menangani pengambilan foto dari Camera component
-    const handlePhotoTaken = (photoData) => {
-        setPhoto(photoData); // Menyimpan foto yang diambil dalam state
-    };
-
-    // Fungsi untuk menangani pengiriman data form (pada tahap frontend, belum terhubung ke backend)
-    const handleSubmit = (e) => {
+    // Fungsi untuk menangani pengiriman data form
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         // Validasi form untuk memastikan semua field terisi
-        if (!nomorPolisi || !jenisKendaraan || !harga || !petugas || !photo) {
-            alert('Semua field harus diisi, termasuk foto!');
+        if (!nomorPolisi || !jenisKendaraan || !harga || !petugas) {
+            alert('Semua field harus diisi!');
             return;
         }
 
-        // Kirim data ke backend (untuk frontend, cukup log data ini)
-        console.log({
-            nomorPolisi,
-            jenisKendaraan,
-            harga,
-            petugas,
-            photo,
-        });
+        // Kirim data ke backend menggunakan API (axios)
+        try {
+            const response = await addTransaction({
+                nomorPolisi,
+                jenisKendaraan,
+                harga,
+                petugas
+            });
 
-        alert('Data Transaksi telah berhasil dikirim!');
+            console.log('Transaksi berhasil ditambahkan', response.data);
+            alert('Data Transaksi telah berhasil dikirim!');
 
-        // Reset form setelah submit
-        setNomorPolisi('');
-        setJenisKendaraan('');
-        setHarga('');
-        setPetugas('');
-        setPhoto(null);
+            // Reset form setelah submit
+            setNomorPolisi('');
+            setJenisKendaraan('');
+            setHarga('');
+            setPetugas('');
+        } catch (error) {
+            console.error('Error saat menambahkan transaksi:', error);
+            alert('Gagal mengirim data transaksi!');
+        }
     };
 
     return (
@@ -99,9 +99,6 @@ export const Transaksi = () => {
                         />
                     </div>
 
-                    {/* Camera Component */}
-                    <Camera onPhotoTaken={handlePhotoTaken} />
-
                     {/* Petugas */}
                     <div className="mb-4 flex flex-col items-start">
                         <label htmlFor="petugas" className="font-semibold mb-2">Petugas</label>
@@ -115,19 +112,11 @@ export const Transaksi = () => {
                         />
                     </div>
 
-                    {/* Preview Foto yang Diambil */}
-                    {photo && (
-                        <div className="mb-4 text-center">
-                            <h3 className="font-semibold mb-2">Foto Preview</h3>
-                            <img src={photo} alt="Captured" className="w-40 h-40 object-cover mx-auto mb-2 rounded-md" />
-                        </div>
-                    )}
-
                     {/* Tombol Tambah Transaksi */}
                     <button
                         type="submit"
-                        className={`w-full py-3 mt-4 ${!photo || !nomorPolisi || !jenisKendaraan || !harga || !petugas ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500'} text-white rounded-lg hover:bg-blue-600`}
-                        disabled={!photo || !nomorPolisi || !jenisKendaraan || !harga || !petugas}
+                        className={`w-full py-3 mt-4 ${!nomorPolisi || !jenisKendaraan || !harga || !petugas ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500'} text-white rounded-lg hover:bg-blue-600`}
+                        disabled={!nomorPolisi || !jenisKendaraan || !harga || !petugas}
                     >
                         Tambah Transaksi
                     </button>

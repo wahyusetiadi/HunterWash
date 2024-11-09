@@ -51,6 +51,14 @@ export const Navigation = () => {
             </li>
             <li>
               <Link
+                to="/pengeluaran"
+                className="block py-2 px-4 hover:bg-gray-200"
+              >
+                Input Pengeluaran
+              </Link>
+            </li>
+            <li>
+              <Link
                 to="/catatan-pengeluaran"
                 className="block py-2 px-4 hover:bg-gray-200"
               >

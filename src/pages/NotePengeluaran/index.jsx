@@ -1,11 +1,31 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ExportLogo from "../../assets/export.svg";
 import { Navigation } from "../../components/organisms/Navigation";
 import { Button } from "../../components/atoms/Button";
 import { Table } from "../../components/organisms/Table";
 import { pengeluaran } from "../../dataDummy";
+import { getPengeluaran } from "../../api/api";
 
 export const NotePengeluaran = () => {
+  const [expanse, setExpanse] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchExpanse = async () => {
+      try {
+        const data = await getPengeluaran();
+        setExpanse(data);
+      } catch (error) {
+        setError('Gagal memuat data pengeluaran');
+        console.error('Error fetching expanse:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchExpanse();
+  }, []);
+
   return (
     <div className="w-full bg-slate-50">
       <Navigation />
@@ -27,9 +47,15 @@ export const NotePengeluaran = () => {
           </div>
           <div></div>
         </form>
-        <div className="mt-4">
-          <Table data={pengeluaran} />
-        </div>
+
+        {loading && <div className="text-center py-4">Memuat data pengeluaran...</div>}
+
+        {error && <div className="text-center text-red-500 py-4">{error}</div>}
+
+        {!loading && !error &&<div className="mt-4">
+          <Table data={expanse} />
+        </div>}
+        
       </div>
     </div>
   );
