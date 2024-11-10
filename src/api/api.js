@@ -1,9 +1,9 @@
-// src/api.js
 import axios from 'axios';
 
 const Login_url = 'http://localhost:5000/api/users'; // Ganti dengan URL backend Anda
 const Transaksi_url = 'http://localhost:5000/api/transaksi';  // URL API untuk transaksi
 const Pengeluaran_url = 'http://localhost:5000/api/expanse';
+
 // Fungsi login
 export const loginUser = async (username, password) => {
   try {
@@ -17,15 +17,36 @@ export const loginUser = async (username, password) => {
   }
 };
 
-// Fungsi untuk register (Jika diperlukan)
-export const registerUser = async (name, email, password, role) => {
+// Fungsi untuk mendapatkan pendapatan berdasarkan tanggal
+export const getPendapatanByDate = async (tanggal) => {
   try {
-    const response = await axios.post(`${API_URL}/register`, {
-      name, email, password, role
-    });
-    return response.data; // return data jika berhasil
+    const response = await axios.get(`${Transaksi_url}/pendapatan-hari-ini?tanggal=${tanggal}`);
+    return response.data;  // Mengembalikan data pendapatan dari server
   } catch (error) {
-    throw error; // throw error jika gagal
+    console.error('Error fetching pendapatan by date:', error);
+    throw error;  // Lempar error jika gagal
+  }
+};
+
+export const getPengeluaranbyDate = async (tanggal) => {
+  try {
+    const response = await axios.get(`${Pengeluaran_url}/pengeluaran-hari-ini?tanggal=${tanggal}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching pengeluaran by date:', error);
+    throw error;
+    
+  }
+};
+
+export const getTotalTransaksibyDate = async (tanggal) => {
+  try {
+    const response = await axios.get(`${Transaksi_url}/transaksi-hari-ini?tanggal=${tanggal}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching transaksi by date:', error);
+    throw error;
+    
   }
 };
 
@@ -43,35 +64,36 @@ export const addTransaction = async (transactionData) => {
   }
 };
 
+// Fungsi untuk mendapatkan transaksi
 export const getTransactions = async () => {
-    try {
-      const response = await axios.get(Transaksi_url);
-      return response.data;  // Mengembalikan data transaksi dari server
-    } catch (error) {
-      throw error;  // Jika gagal, lempar error
-    }
-  };
+  try {
+    const response = await axios.get(Transaksi_url);
+    return response.data;  // Mengembalikan data transaksi dari server
+  } catch (error) {
+    throw error;  // Lempar error jika gagal
+  }
+};
 
-  //pengeluaran
-  export const getPengeluaran = async () => {
-    try {
-      const response = await axios.get(Pengeluaran_url);
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  };
+// Fungsi untuk mendapatkan pengeluaran
+export const getPengeluaran = async () => {
+  try {
+    const response = await axios.get(Pengeluaran_url);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
 
-  export const addExpanse = async(expanseData) => {
-    try {
-      const response = await axios.post(Pengeluaran_url, expanseData, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      return response;
-    } catch (error) {
-      throw error;
-    }
-  };
-
+// Fungsi untuk menambahkan pengeluaran
+export const addExpanse = async(expanseData) => {
+  try {
+    const response = await axios.post(Pengeluaran_url, expanseData, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
