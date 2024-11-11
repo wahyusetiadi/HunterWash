@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 
+function toTitleCaseWithSpace(str) {
+  return str.replace(/([a-z])([A-Z])/g, '$1 $2');
+}
+
 export const Table = ({
-  title,
   data,
   filterData = true,
   itemsPerPage = 5,
@@ -123,9 +126,9 @@ export const Table = ({
               {/* Kolom untuk nomor urut */}
               {columns.map((col) => (
                 <th key={col} className="py-2 px-6 text-left">
-                  {toTitleCase(col) === "Nopol"
+                  {toTitleCase(toTitleCaseWithSpace(col)) === "Nomorpolisi"
                     ? "Nomor Polisi"
-                    : toTitleCase(col)}{" "}
+                    : toTitleCase(toTitleCaseWithSpace(col))}{" "}
                   {/* Nama kolom yang sudah dalam Title Case */}
                 </th>
               ))}
