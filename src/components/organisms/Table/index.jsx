@@ -10,7 +10,7 @@ export const Table = ({
   itemsPerPage = 5,
   showDeleteButton = false, // Menambahkan props showDeleteButton
   onDelete, // Callback untuk penghapusan
-  showAddButton = false, // Menambahkan props showAddButton
+  showAddButton = false, // Menambahkan props showAddButton 
   onAdd, // Callback untuk menambah data
 }) => {
   const [startDate, setStartDate] = useState("");
@@ -21,7 +21,7 @@ export const Table = ({
   // Filter data berdasarkan tanggal jika showFiltered true
   const filterDataFn = showFiltered
     ? data.filter((item) => {
-        const itemDate = new Date(item.date);
+        const itemDate = new Date(item.tanggal);
         const start = startDate ? new Date(startDate) : null;
         const end = endDate ? new Date(endDate) : null;
         return (!start || itemDate >= start) && (!end || itemDate <= end);
@@ -33,8 +33,8 @@ export const Table = ({
   const currentItems = filterDataFn.slice(indexOfFirstItem, indexOfLastItem);
   const totalPage = Math.ceil(filterDataFn.length / itemsPerPage);
 
-  const formatTanggal = (date) => {
-    return new Date(date).toLocaleDateString("id-ID", {
+  const formatTanggal = (tanggal) => {
+    return new Date(tanggal).toLocaleDateString("id-ID", {
       day: "numeric",
       month: "short",
       year: "numeric",
@@ -145,7 +145,7 @@ export const Table = ({
                   </td>
                   {columns.map((col) => (
                     <td key={col} className="py-2 px-6 text-left">
-                      {col === "date" ? formatTanggal(item[col]) : item[col]}
+                      {col === "tanggal" ? formatTanggal(item[col]) : item[col]}
                     </td>
                   ))}
                   {showDeleteButton && (

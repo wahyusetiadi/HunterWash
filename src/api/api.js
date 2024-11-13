@@ -2,7 +2,18 @@ import axios from 'axios';
 
 const Login_url = 'http://localhost:5000/api/users'; // Ganti dengan URL backend Anda
 const Transaksi_url = 'http://localhost:5000/api/transaksi';  // URL API untuk transaksi
-const Pengeluaran_url = 'http://localhost:5000/api/expanse';
+const Pengeluaran_url = 'http://localhost:5000/api/pengeluaran';
+
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('jwtToken');
+  if (token) {
+    return {
+      'Authorization' : `Bearer ${token}`,
+      'Content-Type' : 'application/json',
+    };
+  }
+  return {};
+};
 
 // Fungsi login
 export const loginUser = async (username, password) => {
@@ -11,6 +22,7 @@ export const loginUser = async (username, password) => {
       name: username,
       password: password,
     });
+    localStorage.setItem('jwtToken', response.data.token)
     return response.data; // return data jika berhasil
   } catch (error) {
     throw error; // throw error jika gagal
@@ -20,7 +32,9 @@ export const loginUser = async (username, password) => {
 // Fungsi untuk mendapatkan pendapatan berdasarkan tanggal
 export const getPendapatanByDate = async (tanggal) => {
   try {
-    const response = await axios.get(`${Transaksi_url}/pendapatan-hari-ini?tanggal=${tanggal}`);
+    const response = await axios.get(`${Transaksi_url}/pendapatan-hari-ini?tanggal=${tanggal}`, {
+      headers: getAuthHeaders(),
+    });
     return response.data;  // Mengembalikan data pendapatan dari server
   } catch (error) {
     console.error('Error fetching pendapatan by date:', error);
@@ -28,20 +42,11 @@ export const getPendapatanByDate = async (tanggal) => {
   }
 };
 
-export const getPengeluaranbyDate = async (tanggal) => {
-  try {
-    const response = await axios.get(`${Pengeluaran_url}/pengeluaran-hari-ini?tanggal=${tanggal}`);
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching pengeluaran by date:', error);
-    throw error;
-    
-  }
-};
-
 export const getTotalTransaksibyDate = async (tanggal) => {
   try {
-    const response = await axios.get(`${Transaksi_url}/transaksi-hari-ini?tanggal=${tanggal}`);
+    const response = await axios.get(`${Transaksi_url}/transaksi-hari-ini?tanggal=${tanggal}`, {
+      headers: getAuthHeaders(),
+    });
     return response.data;
   } catch (error) {
     console.error('Error fetching transaksi by date:', error);
@@ -54,9 +59,7 @@ export const getTotalTransaksibyDate = async (tanggal) => {
 export const addTransaction = async (transactionData) => {
   try {
     const response = await axios.post(Transaksi_url, transactionData, {
-      headers: {
-        'Content-Type': 'application/json',  // Kirim data sebagai JSON
-      },
+      headers: getAuthHeaders(),
     });
     return response;  // Mengembalikan response dari server jika berhasil
   } catch (error) {
@@ -67,17 +70,34 @@ export const addTransaction = async (transactionData) => {
 // Fungsi untuk mendapatkan transaksi
 export const getTransactions = async () => {
   try {
-    const response = await axios.get(Transaksi_url);
+    const response = await axios.get(Transaksi_url, {
+      headers: getAuthHeaders(),
+    });
     return response.data;  // Mengembalikan data transaksi dari server
   } catch (error) {
     throw error;  // Lempar error jika gagal
   }
 };
 
+export const getPengeluaranbyDate = async (tanggal) => {
+  try {
+    const response = await axios.get(`${Pengeluaran_url}/pengeluaran-hari-ini?tanggal=${tanggal}`, {
+      headers: getAuthHeaders(),
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching pengeluaran by date:', error);
+    throw error;
+    
+  }
+};
+
 // Fungsi untuk mendapatkan pengeluaran
 export const getPengeluaran = async () => {
   try {
-    const response = await axios.get(Pengeluaran_url);
+    const response = await axios.get(Pengeluaran_url, {
+      headers: getAuthHeaders(),
+    });
     return response.data;
   } catch (error) {
     throw error;
@@ -88,9 +108,7 @@ export const getPengeluaran = async () => {
 export const addExpanse = async(expanseData) => {
   try {
     const response = await axios.post(Pengeluaran_url, expanseData, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: getAuthHeaders(),
     });
     return response;
   } catch (error) {

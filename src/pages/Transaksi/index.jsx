@@ -10,7 +10,7 @@ export const Transaksi = () => {
     // State untuk menangani data form
     const [nomorPolisi, setNomorPolisi] = useState('');
     const [jenisKendaraan, setJenisKendaraan] = useState('');
-    const [harga, setHarga] = useState('');
+    const [biaya, setBiaya] = useState('');
     const [petugas, setPetugas] = useState('');
 
     // Fungsi untuk menangani pengiriman data form
@@ -18,7 +18,7 @@ export const Transaksi = () => {
         e.preventDefault();
 
         // Validasi form untuk memastikan semua field terisi
-        if (!nomorPolisi || !jenisKendaraan || !harga || !petugas) {
+        if (!nomorPolisi || !jenisKendaraan || !biaya || !petugas) {
             alert('Semua field harus diisi!');
             return;
         }
@@ -28,7 +28,7 @@ export const Transaksi = () => {
             const response = await addTransaction({
                 nomorPolisi,
                 jenisKendaraan,
-                harga,
+                biaya,
                 petugas
             });
 
@@ -38,7 +38,7 @@ export const Transaksi = () => {
             // Reset form setelah submit
             setNomorPolisi('');
             setJenisKendaraan('');
-            setHarga('');
+            setBiaya('');
             setPetugas('');
         } catch (error) {
             console.error('Error saat menambahkan transaksi:', error);
@@ -86,15 +86,15 @@ export const Transaksi = () => {
                         />
                     </div>
 
-                    {/* Harga */}
+                    {/* Biaya */}
                     <div className="mb-4 flex flex-col items-start">
-                        <label htmlFor="harga" className="font-semibold mb-2">Harga</label>
+                        <label htmlFor="biaya" className="font-semibold mb-2">Biaya</label>
                         <input
                             required
                             type="text"
-                            placeholder="Pilih Harga"
-                            value={harga}
-                            onChange={(e) => setHarga(e.target.value)}
+                            placeholder="Masukkan Biaya"
+                            value={biaya}
+                            onChange={(e) => setBiaya(e.target.value)}
                             className="w-full px-4 py-2 border bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                     </div>
@@ -115,8 +115,8 @@ export const Transaksi = () => {
                     {/* Tombol Tambah Transaksi */}
                     <button
                         type="submit"
-                        className={`w-full py-3 mt-4 ${!nomorPolisi || !jenisKendaraan || !harga || !petugas ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500'} text-white rounded-lg hover:bg-blue-600`}
-                        disabled={!nomorPolisi || !jenisKendaraan || !harga || !petugas}
+                        className={`w-full py-3 mt-4 ${!nomorPolisi || !jenisKendaraan || !biaya || !petugas ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500'} text-white rounded-lg hover:bg-blue-600`}
+                        disabled={!nomorPolisi || !jenisKendaraan || !biaya || !petugas}
                     >
                         Tambah Transaksi
                     </button>

@@ -8,13 +8,14 @@ import { Income } from './pages/Income'
 import { Pengeluaran } from './pages/Pengeluaran'
 import { NotePengeluaran } from './pages/NotePengeluaran'
 import { DataKaryawan } from './pages/DataKaryawan'
+import ProtectedLayout from './layout/ProtectedLayout'
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path='/'>
           <Route path='/auth' element={<FormLogin />} />
+        <Route element={<ProtectedLayout />}>
           <Route path='/dashboard' element={<Dashboard />} />
           <Route path='/transaksi' element={<Transaksi />} />
           <Route path='/export' element={<Rekap />} />

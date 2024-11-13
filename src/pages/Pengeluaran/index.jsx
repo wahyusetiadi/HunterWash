@@ -8,13 +8,13 @@ import { addExpanse } from "../../api/api";
 
 export const Pengeluaran = () => {
   const [keperluan, setKeperluan] = useState("");
-  const [nominal, setNominal] = useState("");
+  const [biaya, setBiaya] = useState("");
   const [petugas, setPetugas] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!keperluan || !nominal || !petugas) {
+    if (!keperluan || !biaya || !petugas) {
       alert("Semua field harus diisi!");
       return;
     }
@@ -22,7 +22,7 @@ export const Pengeluaran = () => {
     try {
       const response = await addExpanse({
         keperluan,
-        nominal,
+        biaya,
         petugas,
       });
 
@@ -30,7 +30,7 @@ export const Pengeluaran = () => {
       alert("Data Pengeluaran berhasil ditambahkan!");
 
       setKeperluan("");
-      setNominal("");
+      setBiaya("");
       setPetugas("");
     } catch (error) {
       console.error("Error saat menambahkan pengeluaran", error);
@@ -58,12 +58,12 @@ export const Pengeluaran = () => {
           onChange={(e) => setKeperluan(e.target.value)}
           />
           <InputField
-            label={"Nominal"}
+            label={"Biaya"}
             caption={"Contoh: 15000 (Hanya Angka)"}
-            placeholder={"Masukkan Nominal"}
+            placeholder={"Masukkan Biaya"}
             type={"text"}
-            value={nominal}
-            onChange={(e) => setNominal(e.target.value)}
+            value={biaya}
+            onChange={(e) => setBiaya(e.target.value)}
           />
 
           <div></div>
