@@ -3,21 +3,23 @@ import {
   getPendapatanByDate,
   getPengeluaranbyDate,
   getTotalTransaksibyDate,
-} from "../../api/api"; // Impor fungsi dari api.js
+  getUser,
+} from "../../../api/api"; // Impor fungsi dari api.js
 
 // asset
-import IncomeLogo from "../../assets/income.svg";
-import ExportLogo from "../../assets/export.svg";
-import BikeLogo from "../../assets/bike.svg";
-import { Navigation } from "../../components/organisms/Navigation";
-import { Card } from "../../components/atoms/Card";
-import { CardIcon } from "../../components/molecules/CardIcon";
-import { Date as CurrentDate } from "../../components/organisms/Date";
+import IncomeLogo from "../../../assets/income.svg";
+import ExportLogo from "../../../assets/export.svg";
+import BikeLogo from "../../../assets/bike.svg";
+import { Navigation } from "../../../components/organisms/Navigation";
+import { Card } from "../../../components/atoms/Card";
+import { CardIcon } from "../../../components/molecules/CardIcon";
+import { Date as CurrentDate } from "../../../components/organisms/Date";
 
 export const Dashboard = () => {
   const [pendapatan, setPendapatan] = useState(null);
   const [pengeluaran, setPengeluaran] = useState(null); // Pengeluaran tetap 10.000
   const [totalTransaksi, setTotalTransaksi] = useState(null);
+  const [user, setUser] = useState("null");
   const [error, setError] = useState(null); // Untuk menampilkan pesan error jika ada
 
   // Fungsi untuk mendapatkan tanggal dalam format YYYY-MM-DD
@@ -29,6 +31,8 @@ export const Dashboard = () => {
 
     return `${year}-${month}-${day}`; // Mengembalikan tanggal dalam format YYYY-MM-DD
   };
+  const isAdminBesar = user?.role === "admin_besar";
+  const isAdmincabang = user?.role === "admin_cabang";
 
   useEffect(() => {
     const fetchPendapatan = async () => {
@@ -97,6 +101,17 @@ export const Dashboard = () => {
       }
     };
 
+    const fetchCabang = async () => {
+      try {
+        const userData = await getUser();
+        setUser(userData);
+      } catch (error) {
+        setError("Failed to fetch user data");
+      }
+    };
+
+    fetchCabang();
+
     fetchTransaksi();
 
     fetchPengeluaran();
@@ -115,7 +130,7 @@ export const Dashboard = () => {
         <div className="w-full h-24 px-5">
           <div className="flex mt-4">
             <div className="flex items-center justify-start w-3/4 font-bold">
-              Cabang 1 - Karang Anayar
+              {user?.cabang}
             </div>
             <div className="flex items-center justify-end w-1/4 text-xs">
               <CurrentDate />
@@ -151,13 +166,24 @@ export const Dashboard = () => {
 
           <h1 className="font-bold my-4">Daftar Menu</h1>
           <div className="text-white">
-            <CardIcon
-              colorbg={"bg-blue-500"}
-              coloricon={"bg-white"}
-              logo={BikeLogo}
-              title={"Input Transaksi"}
-              link={"/transaksi"}
-            />
+            {!isAdminBesar && isAdmincabang && (
+              <CardIcon
+                colorbg={"bg-blue-500"}
+                coloricon={"bg-white"}
+                logo={BikeLogo}
+                title={"Input Transaksi"}
+                link={"/transaksi"}
+              />
+            )}
+            {isAdminBesar && (
+              <CardIcon
+                colorbg={"bg-blue-500"}
+                coloricon={"bg-white"}
+                logo={BikeLogo}
+                title={"Catatan Pemasukan"}
+                link={"/pemasukan"}
+              />
+            )}
             <CardIcon
               colorbg={"bg-blue-500"}
               coloricon={"bg-white"}

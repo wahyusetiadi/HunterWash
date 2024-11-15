@@ -3,6 +3,7 @@ import axios from 'axios';
 const Login_url = 'http://localhost:5000/api/users'; // Ganti dengan URL backend Anda
 const Transaksi_url = 'http://localhost:5000/api/transaksi';  // URL API untuk transaksi
 const Pengeluaran_url = 'http://localhost:5000/api/pengeluaran';
+const User_url = 'http://localhost:5000/api/users/data';
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem('jwtToken');
@@ -115,3 +116,91 @@ export const addExpanse = async(expanseData) => {
     throw error;
   }
 };
+
+
+export const getUser = async() => {
+  try {
+    const response = await axios.get(User_url, {
+      headers : getAuthHeaders(),
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const exportTransaksi = async(cabang, fromDate, toDate) => {
+  try {
+    // let url = cabang ? `http://localhost:5000/api/report/transaksi/export?cabang=${cabang}` :
+    // 'http://localhost:5000/api/report/transaksi/export';
+    let url = `http://localhost:5000/api/report/transaksi/export?cabang=${cabang}`;
+
+    if (fromDate) {
+      url += `&fromDate=${fromDate}`;
+    }
+    if (toDate) {
+      url += `&toDate=${toDate}`;
+    }
+
+    const response = await axios.get(url, {
+      headers : getAuthHeaders(),
+      responseType : 'blob',
+    });
+
+    const fileUrl = window.URL.createObjectURL(new Blob([response.data]));
+
+    const link = document.createElement('a');
+    link.href = fileUrl;
+    link.download = cabang ? `exported_data_transaksi_${cabang}.xlsx` : 'export_data_transaksi_all.xlsx';
+    document.body.appendChild(link);
+    link.click();
+
+    document.body.removeChild(link);
+  } catch (error) {
+    console.error('Error Export data', error);
+    throw error;    
+  }
+};
+
+export const exportPengeluaran = async(cabang, fromDate, toDate) => {
+  try {
+    let url = `http://localhost:5000/api/report/pengeluaran/export?cabang=${cabang}`;
+
+    if (fromDate) {
+      url += `&fromDate=${fromDate}`;
+    }
+    if (toDate) {
+      url += `&toDate=${toDate}`;
+    }
+
+    const response = await axios.get(url, {
+      headers : getAuthHeaders(),
+      responseType : 'blob',
+    });
+
+    const fileUrl = window.URL.createObjectURL(new Blob([response.data]));
+
+    const link = document.createElement('a');
+    link.href = fileUrl;
+    link.download = cabang ? `exported_data_pengeluaran_${cabang}.xlsx` : 'export_data_pengeluaran_all.xlsx';
+    document.body.appendChild(link);
+    link.click();
+
+    document.body.removeChild(link);
+  } catch (error) {
+    console.error('Error Export data', error);
+    throw error;    
+  }
+};
+
+
+export const getCabangOptions = async () => {
+  try {
+    const response = await axios.get(Login_url, {
+      headers: getAuthHeaders(),
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}

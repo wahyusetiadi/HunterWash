@@ -1,14 +1,31 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom"; // Import Link for routing and useLocation for current path
 import LogoText from "../../../assets/logo-text.svg";
 import Logo from "../../../assets/logo.svg";
+import { getUser } from "../../../api/api";
 
 export const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false); // State to toggle menu visibility
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const userData = await getUser();
+        setUser(userData);
+      } catch (error) {
+        throw error;
+      }
+    };
+    fetchUser();
+  }, []);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
+
+  const isAdminBesar = user?.role === "admin_besar";
+  const isAdmincabang = user?.role === "admin_cabang";
 
   return (
     <div className="flex flex-row w-full h-[80px] bg-white shadow-md px-5">
@@ -31,7 +48,7 @@ export const Navigation = () => {
 
       {/* Mobile Navigation Menu */}
       {isMenuOpen && (
-        <div className="absolute top-[80px] left-0 w-full bg-white shadow-md">
+        <div className="absolute top-[80px] left-0 w-full bg-white shadow-md z-10">
           <ul className="flex flex-col p-4">
             <li>
               <Link
@@ -41,22 +58,27 @@ export const Navigation = () => {
                 Beranda
               </Link>
             </li>
-            <li>
-              <Link
-                to="/transaksi"
-                className="block py-2 px-4 hover:bg-gray-200"
-              >
-                Input Transaksi
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/pengeluaran"
-                className="block py-2 px-4 hover:bg-gray-200"
-              >
-                Input Pengeluaran
-              </Link>
-            </li>
+            {!isAdminBesar && isAdmincabang && (
+              <>
+                <li>
+                  <Link
+                    to="/transaksi"
+                    className="block py-2 px-4 hover:bg-gray-200"
+                  >
+                    Input Transaksi
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/pengeluaran"
+                    className="block py-2 px-4 hover:bg-gray-200"
+                  >
+                    Input Pengeluaran
+                  </Link>
+                </li>
+              </>
+            )}
+
             <li>
               <Link
                 to="/catatan-pengeluaran"

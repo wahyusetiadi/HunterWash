@@ -1,7 +1,7 @@
 import React from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { FormLogin } from './pages/auth/FormLogin'
-import { Dashboard } from './pages/Dashboard'
+import { Dashboard } from './pages/dashboard/User'
 import { Transaksi } from './pages/Transaksi'
 import { Rekap } from './pages/Rekap'
 import { Income } from './pages/Income'
