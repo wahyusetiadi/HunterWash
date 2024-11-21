@@ -16,7 +16,7 @@ const getAuthHeaders = () => {
   return {};
 };
 
-// Fungsi login
+// Login API
 export const loginUser = async (username, password) => {
   try {
     const response = await axios.post(`${Login_url}/login`, {
@@ -30,7 +30,7 @@ export const loginUser = async (username, password) => {
   }
 };
 
-// Fungsi untuk mendapatkan pendapatan berdasarkan tanggal
+// GET pendapatan sesuai tanggal API
 export const getPendapatanByDate = async (tanggal) => {
   try {
     const response = await axios.get(`${Transaksi_url}/pendapatan-hari-ini?tanggal=${tanggal}`, {
@@ -43,6 +43,7 @@ export const getPendapatanByDate = async (tanggal) => {
   }
 };
 
+//GET total transaksi(unit) sesuai tanggal API
 export const getTotalTransaksibyDate = async (tanggal) => {
   try {
     const response = await axios.get(`${Transaksi_url}/transaksi-hari-ini?tanggal=${tanggal}`, {
@@ -56,7 +57,7 @@ export const getTotalTransaksibyDate = async (tanggal) => {
   }
 };
 
-// Fungsi untuk menambahkan transaksi baru
+// POST API menambahkan transaksi
 export const addTransaction = async (transactionData) => {
   try {
     const response = await axios.post(Transaksi_url, transactionData, {
@@ -68,7 +69,7 @@ export const addTransaction = async (transactionData) => {
   }
 };
 
-// Fungsi untuk mendapatkan transaksi
+// GET semua transaksi API 
 export const getTransactions = async () => {
   try {
     const response = await axios.get(Transaksi_url, {
@@ -80,6 +81,7 @@ export const getTransactions = async () => {
   }
 };
 
+// GET API pengeluaran sesuai tanggal
 export const getPengeluaranbyDate = async (tanggal) => {
   try {
     const response = await axios.get(`${Pengeluaran_url}/pengeluaran-hari-ini?tanggal=${tanggal}`, {
@@ -93,7 +95,7 @@ export const getPengeluaranbyDate = async (tanggal) => {
   }
 };
 
-// Fungsi untuk mendapatkan pengeluaran
+// GET API semua pengeluaran
 export const getPengeluaran = async () => {
   try {
     const response = await axios.get(Pengeluaran_url, {
@@ -105,7 +107,7 @@ export const getPengeluaran = async () => {
   }
 };
 
-// Fungsi untuk menambahkan pengeluaran
+// POST API menambah pengeluaran
 export const addExpanse = async(expanseData) => {
   try {
     const response = await axios.post(Pengeluaran_url, expanseData, {
@@ -117,7 +119,7 @@ export const addExpanse = async(expanseData) => {
   }
 };
 
-
+// GET user ketika login
 export const getUser = async() => {
   try {
     const response = await axios.get(User_url, {
@@ -129,6 +131,7 @@ export const getUser = async() => {
   }
 };
 
+// GET data transaksi ke Excel
 export const exportTransaksi = async(cabang, fromDate, toDate) => {
   try {
     // let url = cabang ? `http://localhost:5000/api/report/transaksi/export?cabang=${cabang}` :
@@ -162,6 +165,7 @@ export const exportTransaksi = async(cabang, fromDate, toDate) => {
   }
 };
 
+// GET data pengeluaran ke Excel
 export const exportPengeluaran = async(cabang, fromDate, toDate) => {
   try {
     let url = `http://localhost:5000/api/report/pengeluaran/export?cabang=${cabang}`;

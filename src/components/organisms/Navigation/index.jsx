@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom"; // Import Link for routing and useLocation for current path
+import { Link, useNavigate } from "react-router-dom"; // Import Link for routing and useLocation for current path
 import LogoText from "../../../assets/logo-text.svg";
 import Logo from "../../../assets/logo.svg";
 import { getUser } from "../../../api/api";
@@ -7,6 +7,12 @@ import { getUser } from "../../../api/api";
 export const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false); // State to toggle menu visibility
   const [user, setUser] = useState(null);
+  const navigate = useNavigate();
+
+  const logout = () => {
+    localStorage.removeItem('token'); // Hapus token dari localStorage
+    navigate('/auth'); // Arahkan pengguna ke halaman login
+  };
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -107,6 +113,21 @@ export const Navigation = () => {
               >
                 Data Pemasukan & Transaksi
               </Link>
+            </li>
+            {/* <li>
+              <Link to="/auth"
+              className="block py-2 px-4 hover:bg-gray-200"
+              >
+                Keluar
+              </Link>
+            </li> */}
+            <li>
+              <button
+              className="block w-full text-left py-2 px-4 hover:bg-gray-200"
+              onClick={logout}
+              >
+                Keluar
+              </button>
             </li>
           </ul>
         </div>
