@@ -5,28 +5,24 @@ import { Navigation } from '../../components/organisms/Navigation';
 import { Button } from '../../components/atoms/Button';
 
 export const Rekap = () => {
-  // State untuk form input
-  const [dataType, setDataType] = useState('');  // Menyimpan tipe data yang dipilih (Transaksi/Pengeluaran)
+  const [dataType, setDataType] = useState(''); 
   const [branch, setBranch] = useState('');
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [cabangOptions, setCabangOptions] = useState([]);  // State untuk menyimpan opsi cabang
-  const [transactions, setTransactions] = useState([]); // Untuk menyimpan data transaksi
-  const [expanse, setExpanse] = useState([]);  // Untuk menyimpan data pengeluaran
+  const [cabangOptions, setCabangOptions] = useState([]);  
+  const [transactions, setTransactions] = useState([]); 
+  const [expanse, setExpanse] = useState([]); 
 
-  // Ambil data transaksi dan pengeluaran saat komponen pertama kali dimuat
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        const data = await getTransactions(); // Panggil API untuk mengambil data transaksi
-        setTransactions(data);  // Set transaksi ke state
-
-        // Ambil cabang unik dari data transaksi
+        const data = await getTransactions(); 
+        setTransactions(data);  
         const branches = data.map(transaction => transaction.cabang);
-        const uniqueBranches = [...new Set(branches)];  // Menghilangkan duplikasi cabang
-        setCabangOptions(uniqueBranches); // Set cabang options
+        const uniqueBranches = [...new Set(branches)];  
+        setCabangOptions(uniqueBranches);
       } catch (err) {
         setError('Gagal memuat data transaksi atau cabang.');
         console.error('Error fetching transactions:', err);
@@ -35,8 +31,8 @@ export const Rekap = () => {
 
     const fetchExpanse = async () => {
       try {
-        const data = await getPengeluaran(); // Panggil API untuk mengambil data pengeluaran
-        setExpanse(data); // Set pengeluaran ke state
+        const data = await getPengeluaran(); 
+        setExpanse(data); 
       } catch (err) {
         setError('Gagal memuat data pengeluaran.');
         console.error('Error fetching expanse:', err);
@@ -45,14 +41,13 @@ export const Rekap = () => {
 
     fetchTransactions();
     fetchExpanse();
-  }, []); // Efek ini hanya dijalankan sekali saat komponen pertama kali dimuat
+  }, []); 
 
-  // Handle perubahan pada input form
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     switch (name) {
       case 'dataType':
-        setDataType(value);  // Update tipe data yang dipilih (Transaksi/Pengeluaran)
+        setDataType(value);  
         break;
       case 'branch':
         setBranch(value);
@@ -68,9 +63,8 @@ export const Rekap = () => {
     }
   };
 
-  // Fungsi untuk mengekspor data
   const handleExport = async (e) => {
-    e.preventDefault(); // Menghentikan refresh halaman
+    e.preventDefault(); 
 
     if (!dataType || !branch || !fromDate || !toDate) {
       setError('Semua field harus diisi!');
@@ -82,11 +76,9 @@ export const Rekap = () => {
 
     try {
       if (dataType === 'transaksi') {
-        // Jika data yang dipilih adalah transaksi
-        await exportTransaksi(branch, fromDate, toDate);  // Mengirim cabang, dari tanggal, dan sampai tanggal
+        await exportTransaksi(branch, fromDate, toDate); 
       } else if (dataType === 'pengeluaran') {
-        // Jika data yang dipilih adalah pengeluaran
-        await exportPengeluaran(branch, fromDate, toDate);  // Mengirim cabang, dari tanggal, dan sampai tanggal
+        await exportPengeluaran(branch, fromDate, toDate);  
       }
     } catch (err) {
       setError('Terjadi kesalahan saat mengekspor data.');
@@ -111,7 +103,6 @@ export const Rekap = () => {
       </div>
       <div className="px-5 text-sm">
         <form onSubmit={handleExport}>
-          {/* Pilihan Data yang ingin diexport */}
           <div className="mb-4 flex flex-col items-start">
             <label htmlFor="dataType" className="font-semibold mb-2">
               Data yang ingin diexport
@@ -129,7 +120,6 @@ export const Rekap = () => {
             </select>
           </div>
 
-          {/* Cabang (ubah menjadi select) */}
           <div className="mb-4 flex flex-col items-start">
             <label htmlFor="branch" className="font-semibold mb-2">
               Cabang

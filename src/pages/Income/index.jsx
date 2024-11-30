@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import ExportLogo from '../../assets/export.svg';
 import { Navigation } from '../../components/organisms/Navigation';
-import { Button } from '../../components/atoms/Button';
 import { Table } from '../../components/organisms/Table';
 import { getTransactions, getUser } from '../../api/api'; // Pastikan mengimpor fungsi getTransactions
 

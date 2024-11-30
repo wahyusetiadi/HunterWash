@@ -10,20 +10,30 @@ export const Pengeluaran = () => {
   const [keperluan, setKeperluan] = useState("");
   const [biaya, setBiaya] = useState("");
   const [petugas, setPetugas] = useState("");
+  const [petugasOption, setPetugasOption] = useState("");
+
+  const handlePetugasOption = (e) => {
+    setPetugasOption(e.target.value);
+    if (e.target.value !== "lainnya") {
+      setPetugas("");
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!keperluan || !biaya || !petugas) {
+    if (!keperluan || !biaya || (!petugas && petugasOption === "")) {
       alert("Semua field harus diisi!");
       return;
     }
+
+    const finalPetugas = petugasOption === "lainnya" ? petugas : petugasOption;
 
     try {
       const response = await addExpanse({
         keperluan,
         biaya,
-        petugas,
+        petugas: finalPetugas,
       });
 
       console.log("Traksaksi pengeluaran berhasil ditambahkan", response.data);
@@ -32,11 +42,21 @@ export const Pengeluaran = () => {
       setKeperluan("");
       setBiaya("");
       setPetugas("");
+      setPetugasOption("");
     } catch (error) {
       console.error("Error saat menambahkan pengeluaran", error);
       alert("Gagal mengirim data pengeluaran!");
     }
   };
+
+  const isFormValid =
+    keperluan &&
+    biaya &&
+    petugasOption !== "Pilih Petugas" &&
+    (petugasOption !== "lainnya" || (petugasOption === "lainnya" && petugas));
+
+  console.log("Form Valid:", isFormValid);
+
   return (
     <div className="w-full bg-slate-50">
       <Navigation />
@@ -51,11 +71,11 @@ export const Pengeluaran = () => {
       </div>
       <div className="px-5 text-sm">
         <form onSubmit={handleSubmit}>
-          <InputField 
-          label={"Keperluan"} 
-          placeholder={"Masukkan Keperluan"} 
-          value={keperluan}
-          onChange={(e) => setKeperluan(e.target.value)}
+          <InputField
+            label={"Keperluan"}
+            placeholder={"Masukkan Keperluan"}
+            value={keperluan}
+            onChange={(e) => setKeperluan(e.target.value)}
           />
           <InputField
             label={"Biaya"}
@@ -72,14 +92,28 @@ export const Pengeluaran = () => {
             <label htmlFor="username" className="font-semibold mb-2">
               Petugas yang Memerlukan Dana
             </label>
-            <input
-              required
-              type="text"
-              value={petugas}
-              onChange={(e) => setPetugas(e.target.value)}
-              placeholder="Pilih Petugas"
-              className="w-full px-4 py-2 border bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+            {petugasOption !== "lainnya" ? (
+              <select
+                required
+                value={petugasOption}
+                onChange={handlePetugasOption}
+                className="w-full px-4 py-2 border bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="Pilih Petugas">Pilih Petugas</option>
+                <option value="Mamat">Mamat</option>
+                <option value="Bejo">Bejo</option>
+                <option value="lainnya">Lainnya</option>
+              </select>
+            ) : (
+              <input
+                required
+                type="text"
+                value={petugas}
+                onChange={(e) => setPetugas(e.target.value)}
+                placeholder="Pilih Petugas"
+                className="w-full px-4 py-2 border bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            )}
           </div>
           <div className="pt-4">
             <Button title={"Simpan"} />

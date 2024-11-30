@@ -1,17 +1,9 @@
 import React, { useEffect, useState } from "react";
-import {
-  getPendapatanByDate,
-  getPengeluaranbyDate,
-  getTotalTransaksibyDate,
-  getUser,
-} from "../../../api/api"; // Impor fungsi dari api.js
-
-// asset
+import { getPendapatanByDate, getPengeluaranbyDate, getTotalTransaksibyDate, getUser } from "../../../api/api";
 import IncomeLogo from "../../../assets/income.svg";
 import ExportLogo from "../../../assets/export.svg";
 import BikeLogo from "../../../assets/bike.svg";
 import { Navigation } from "../../../components/organisms/Navigation";
-import { Card } from "../../../components/atoms/Card";
 import { CardIcon } from "../../../components/molecules/CardIcon";
 import { Date as CurrentDate } from "../../../components/organisms/Date";
 
@@ -29,7 +21,7 @@ export const Dashboard = () => {
     const month = String(today.getMonth() + 1).padStart(2, "0"); // Menambah 1 karena bulan dimulai dari 0
     const day = String(today.getDate()).padStart(2, "0");
 
-    return `${year}-${month}-${day}`; // Mengembalikan tanggal dalam format YYYY-MM-DD
+    return `${year}-${month}-${day}`;
   };
   const isAdminBesar = user?.role === "admin_besar";
   const isAdmincabang = user?.role === "admin_cabang";
