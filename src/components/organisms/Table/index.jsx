@@ -1,22 +1,25 @@
 import React, { useState } from "react";
+// import Modal from "../ModalForm";
 
 function toTitleCaseWithSpace(str) {
-  return str.replace(/([a-z])([A-Z])/g, '$1 $2');
+  return str.replace(/([a-z])([A-Z])/g, "$1 $2");
 }
 
 export const Table = ({
   data,
   filterData = true,
   itemsPerPage = 5,
-  showDeleteButton = false, // Menambahkan props showDeleteButton
-  onDelete, // Callback untuk penghapusan
-  showAddButton = false, // Menambahkan props showAddButton 
-  onAdd, // Callback untuk menambah data
+  showDeleteButton = false,
+  onDelete,
+  showAddButton = false,
+  onClickAdd,
+  onAdd,
 }) => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [showFiltered, setShowFiltered] = useState(false); // State untuk trigger filter
+  const [showFiltered, setShowFiltered] = useState(false);
+  // const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Filter data berdasarkan tanggal jika showFiltered true
   const filterDataFn = showFiltered
@@ -56,31 +59,15 @@ export const Table = ({
   const columns = Object.keys(data[0] || {}).filter((key) => key !== "id");
 
   const handleDelete = (id) => {
+    console.log("ID: yang akan dihapus:", id);
+    
     if (onDelete) {
       onDelete(id); // Memanggil callback onDelete yang diterima sebagai props
     }
   };
 
-  const handleAdd = () => {
-    if (onAdd) {
-      onAdd(); // Memanggil callback onAdd yang diterima sebagai props
-    }
-  };
-
   return (
     <div>
-      {/* Render tombol tambah data jika showAddButton true */}
-      {showAddButton && (
-        <div className="flex justify-end mb-4">
-          <button
-            onClick={handleAdd}
-            className="px-4 py-2 text-xs font-medium bg-green-500 text-white rounded-lg hover:bg-green-600"
-          >
-            Tambah Data
-          </button>
-        </div>
-      )}
-
       {/* Conditionally render the filter inputs */}
       {filterData && (
         <div className="flex flex-col gap-4">
@@ -112,7 +99,17 @@ export const Table = ({
           </button>
         </div>
       )}
-
+      {/* Render tombol tambah data jika showAddButton true */}
+      {showAddButton && (
+        <div className="flex justify-end my-4">
+          <button
+            onClick={onClickAdd}
+            className="px-4 py-2 text-xs font-medium bg-green-500 text-white rounded-lg hover:bg-green-600"
+          >
+            Tambah Data
+          </button>
+        </div>
+      )}
       <div className="overflow-x-auto mt-4 rounded-lg">
         <table
           border="1"
@@ -120,9 +117,9 @@ export const Table = ({
           cellSpacing="0"
           className="min-w-full bg-white border border-gray-200 rounded-lg shadow-lg"
         >
-          <thead className="bg-blue-400 text-gray-900 rounded">
+          <thead className="bg-blue-400 text-gray-800 rounded">
             <tr>
-              <th className="py-2 px-6 text-left">No</th>{" "}
+              <th className="py-4 px-6 text-left">No</th>{" "}
               {/* Kolom untuk nomor urut */}
               {columns.map((col) => (
                 <th key={col} className="py-2 px-6 text-left">
@@ -132,7 +129,9 @@ export const Table = ({
                   {/* Nama kolom yang sudah dalam Title Case */}
                 </th>
               ))}
-              {showDeleteButton && <th className="py-2 px-6 text-left">Aksi</th>}
+              {showDeleteButton && (
+                <th className="py-2 px-6 text-left">Aksi</th>
+              )}
             </tr>
           </thead>
           <tbody className="text-gray-700 text-xs">
@@ -151,7 +150,10 @@ export const Table = ({
                   {showDeleteButton && (
                     <td className="py-2 px-6 text-left">
                       <button
-                        onClick={() => handleDelete(item.id)}
+                        onClick={() =>{ console.log("item yang dihapus", item);
+                          console.log("ID item", item.id);
+                          
+                         onDelete(item)}}
                         className="px-4 py-2  text-xs font-medium bg-red-500 text-white rounded-lg hover:bg-red-600"
                       >
                         Hapus
@@ -186,6 +188,11 @@ export const Table = ({
           </button>
         ))}
       </div>
+      {/* <Modal 
+      isOpen={isModalOpen}
+      onClose={closeModal}
+      onSubmit={handleSubmit}
+      /> */}
     </div>
   );
 };

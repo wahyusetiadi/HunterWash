@@ -1,210 +1,260 @@
-import axios from 'axios';
+import axios from "axios";
 
-const Login_url = 'http://localhost:5000/api/users'; // Ganti dengan URL backend Anda
-const Transaksi_url = 'http://localhost:5000/api/transaksi';  // URL API untuk transaksi
-const Pengeluaran_url = 'http://localhost:5000/api/pengeluaran';
-const User_url = 'http://localhost:5000/api/users/data';
+const BASE_URL = "http://localhost:5000/api"; // Menyimpan URL dasar untuk API
 
+// ===== Local Storage =====
 const getAuthHeaders = () => {
-  const token = localStorage.getItem('jwtToken');
+  const token = localStorage.getItem("jwtToken");
   if (token) {
     return {
-      'Authorization' : `Bearer ${token}`,
-      'Content-Type' : 'application/json',
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
     };
   }
   return {};
 };
 
-// Login API
+// ===== LOGIN POST =====
 export const loginUser = async (username, password) => {
   try {
-    const response = await axios.post(`${Login_url}/login`, {
+    const response = await axios.post(`${BASE_URL}/users/login`, {
       name: username,
       password: password,
     });
-    localStorage.setItem('jwtToken', response.data.token)
+    localStorage.setItem("jwtToken", response.data.token);
     return response.data; // return data jika berhasil
   } catch (error) {
+    console.error("Login error: ", error);
     throw error; // throw error jika gagal
   }
 };
 
-// GET pendapatan sesuai tanggal API
+// ===== GET Pendapatan =====
 export const getPendapatanByDate = async (tanggal) => {
   try {
-    const response = await axios.get(`${Transaksi_url}/pendapatan-hari-ini?tanggal=${tanggal}`, {
-      headers: getAuthHeaders(),
-    });
-    return response.data;  // Mengembalikan data pendapatan dari server
+    const response = await axios.get(
+      `${BASE_URL}/transaksi/pendapatan-hari-ini?tanggal=${tanggal}`,
+      {
+        headers: getAuthHeaders(),
+      }
+    );
+    return response.data; // Mengembalikan data pendapatan dari server
   } catch (error) {
-    console.error('Error fetching pendapatan by date:', error);
-    throw error;  // Lempar error jika gagal
+    console.error("Error fetching pendapatan by date:", error);
+    throw error; // Lempar error jika gagal
   }
 };
 
-//GET total transaksi(unit) sesuai tanggal API
+// ===== GET Cabang =====
+export const getCabangOptions = async () => {
+  try {
+    const response = await axios.get(`${BASE_URL}/users`, {
+      headers: getAuthHeaders(),
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching cabang options:", error);
+    throw error;
+  }
+};
+
+// ===== TRANSAKSI =====
+// GET
 export const getTotalTransaksibyDate = async (tanggal) => {
   try {
-    const response = await axios.get(`${Transaksi_url}/transaksi-hari-ini?tanggal=${tanggal}`, {
-      headers: getAuthHeaders(),
-    });
+    const response = await axios.get(
+      `${BASE_URL}/transaksi/transaksi-hari-ini?tanggal=${tanggal}`,
+      {
+        headers: getAuthHeaders(),
+      }
+    );
     return response.data;
   } catch (error) {
-    console.error('Error fetching transaksi by date:', error);
+    console.error("Error fetching transaksi by date:", error);
     throw error;
-    
   }
 };
 
-// POST API menambahkan transaksi
+// POST
 export const addTransaction = async (transactionData) => {
   try {
-    const response = await axios.post(Transaksi_url, transactionData, {
-      headers: getAuthHeaders(),
-    });
-    return response;  // Mengembalikan response dari server jika berhasil
+    const response = await axios.post(
+      `${BASE_URL}/transaksi`,
+      transactionData,
+      {
+        headers: getAuthHeaders(),
+      }
+    );
+    return response; // Mengembalikan response dari server jika berhasil
   } catch (error) {
-    throw error;  // Jika gagal, lempar error
+    console.error("Error adding transaction:", error);
+    throw error; // Jika gagal, lempar error
   }
 };
 
-// GET semua transaksi API 
+// GET
 export const getTransactions = async () => {
   try {
-    const response = await axios.get(Transaksi_url, {
+    const response = await axios.get(`${BASE_URL}/transaksi`, {
       headers: getAuthHeaders(),
     });
-    return response.data;  // Mengembalikan data transaksi dari server
+    return response.data; // Mengembalikan data transaksi dari server
   } catch (error) {
-    throw error;  // Lempar error jika gagal
+    console.error("Error fetching transactions:", error);
+    throw error; // Lempar error jika gagal
   }
 };
 
-// GET API pengeluaran sesuai tanggal
+// ===== PENGELUARAN =====
+// GET
 export const getPengeluaranbyDate = async (tanggal) => {
   try {
-    const response = await axios.get(`${Pengeluaran_url}/pengeluaran-hari-ini?tanggal=${tanggal}`, {
-      headers: getAuthHeaders(),
-    });
+    const response = await axios.get(
+      `${BASE_URL}/pengeluaran/pengeluaran-hari-ini?tanggal=${tanggal}`,
+      {
+        headers: getAuthHeaders(),
+      }
+    );
     return response.data;
   } catch (error) {
-    console.error('Error fetching pengeluaran by date:', error);
+    console.error("Error fetching pengeluaran by date:", error);
     throw error;
-    
   }
 };
 
-// GET API semua pengeluaran
+// GET
 export const getPengeluaran = async () => {
   try {
-    const response = await axios.get(Pengeluaran_url, {
+    const response = await axios.get(`${BASE_URL}/pengeluaran`, {
       headers: getAuthHeaders(),
     });
     return response.data;
   } catch (error) {
+    console.error("Error fetching pengeluaran:", error);
     throw error;
   }
 };
 
-// POST API menambah pengeluaran
-export const addExpanse = async(expanseData) => {
+// POST
+export const addExpanse = async (expanseData) => {
   try {
-    const response = await axios.post(Pengeluaran_url, expanseData, {
+    const response = await axios.post(`${BASE_URL}/pengeluaran`, expanseData, {
       headers: getAuthHeaders(),
     });
     return response;
   } catch (error) {
+    console.error("Error adding expanse:", error);
     throw error;
   }
 };
 
-// GET user ketika login
-export const getUser = async() => {
+// ===== USER =====
+// GET
+export const getUser = async () => {
   try {
-    const response = await axios.get(User_url, {
-      headers : getAuthHeaders(),
-    });
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
-
-// GET data transaksi ke Excel
-export const exportTransaksi = async(cabang, fromDate, toDate) => {
-  try {
-    // let url = cabang ? `http://localhost:5000/api/report/transaksi/export?cabang=${cabang}` :
-    // 'http://localhost:5000/api/report/transaksi/export';
-    let url = `http://localhost:5000/api/report/transaksi/export?cabang=${cabang}`;
-
-    if (fromDate) {
-      url += `&fromDate=${fromDate}`;
-    }
-    if (toDate) {
-      url += `&toDate=${toDate}`;
-    }
-
-    const response = await axios.get(url, {
-      headers : getAuthHeaders(),
-      responseType : 'blob',
-    });
-
-    const fileUrl = window.URL.createObjectURL(new Blob([response.data]));
-
-    const link = document.createElement('a');
-    link.href = fileUrl;
-    link.download = cabang ? `exported_data_transaksi_${cabang}.xlsx` : 'export_data_transaksi_all.xlsx';
-    document.body.appendChild(link);
-    link.click();
-
-    document.body.removeChild(link);
-  } catch (error) {
-    console.error('Error Export data', error);
-    throw error;    
-  }
-};
-
-// GET data pengeluaran ke Excel
-export const exportPengeluaran = async(cabang, fromDate, toDate) => {
-  try {
-    let url = `http://localhost:5000/api/report/pengeluaran/export?cabang=${cabang}`;
-
-    if (fromDate) {
-      url += `&fromDate=${fromDate}`;
-    }
-    if (toDate) {
-      url += `&toDate=${toDate}`;
-    }
-
-    const response = await axios.get(url, {
-      headers : getAuthHeaders(),
-      responseType : 'blob',
-    });
-
-    const fileUrl = window.URL.createObjectURL(new Blob([response.data]));
-
-    const link = document.createElement('a');
-    link.href = fileUrl;
-    link.download = cabang ? `exported_data_pengeluaran_${cabang}.xlsx` : 'export_data_pengeluaran_all.xlsx';
-    document.body.appendChild(link);
-    link.click();
-
-    document.body.removeChild(link);
-  } catch (error) {
-    console.error('Error Export data', error);
-    throw error;    
-  }
-};
-
-
-export const getCabangOptions = async () => {
-  try {
-    const response = await axios.get(Login_url, {
+    const response = await axios.get(`${BASE_URL}/users/data`, {
       headers: getAuthHeaders(),
     });
     return response.data;
   } catch (error) {
+    console.error("Error fetching users:", error);
     throw error;
   }
-}
+};
+
+// POST
+export const addUser = async (userData) => {
+  try {
+    const response = await axios.post(`${BASE_URL}/users/register`, userData, {
+      headers: getAuthHeaders(),
+    });
+    return response;
+  } catch (error) {
+    console.error("Error adding user:", error);
+    throw error;
+  }
+};
+
+// DELETE
+export const deleteUser = async (id) => {
+  if (!id) {
+    console.error("ID tidak valid:", id);
+    return; // Menghentikan fungsi jika id tidak valid
+  }
+
+  try {
+    const response = await axios.delete(`${BASE_URL}/users/${id}`, {
+      headers: getAuthHeaders(),
+    });
+    console.log("Response after delete:", response);
+    return response;
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    throw error;
+  }
+};
+
+// ===== EXPORT data to EXCEL =====
+// EXPORT Transaksi
+export const exportTransaksi = async (cabang, fromDate, toDate) => {
+  try {
+    let url = `${BASE_URL}/report/transaksi/export?cabang=${cabang}`;
+
+    if (fromDate) {
+      url += `&fromDate=${fromDate}`;
+    }
+    if (toDate) {
+      url += `&toDate=${toDate}`;
+    }
+
+    const response = await axios.get(url, {
+      headers: getAuthHeaders(),
+      responseType: "blob",
+    });
+
+    const fileUrl = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement("a");
+    link.href = fileUrl;
+    link.download = cabang
+      ? `exported_data_transaksi_${cabang}.xlsx`
+      : "export_data_transaksi_all.xlsx";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  } catch (error) {
+    console.error("Error exporting transaksi data:", error);
+    throw error;
+  }
+};
+
+// EXPORT Pengeluaran
+export const exportPengeluaran = async (cabang, fromDate, toDate) => {
+  try {
+    let url = `${BASE_URL}/report/pengeluaran/export?cabang=${cabang}`;
+
+    if (fromDate) {
+      url += `&fromDate=${fromDate}`;
+    }
+    if (toDate) {
+      url += `&toDate=${toDate}`;
+    }
+
+    const response = await axios.get(url, {
+      headers: getAuthHeaders(),
+      responseType: "blob",
+    });
+
+    const fileUrl = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement("a");
+    link.href = fileUrl;
+    link.download = cabang
+      ? `exported_data_pengeluaran_${cabang}.xlsx`
+      : "export_data_pengeluaran_all.xlsx";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  } catch (error) {
+    console.error("Error exporting pengeluaran data:", error);
+    throw error;
+  }
+};

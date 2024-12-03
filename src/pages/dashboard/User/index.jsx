@@ -107,10 +107,9 @@ export const Dashboard = () => {
     fetchTransaksi();
 
     fetchPengeluaran();
-    // Panggil fungsi fetch pendapatan
+    
     fetchPendapatan();
-  }, []); // empty dependency array berarti hanya dipanggil sekali saat komponen pertama kali dirender
-  // empty dependency array berarti hanya dipanggil sekali saat komponen pertama kali dirender
+  }, []);
 
   return (
     <div className="w-full h-screen bg-whitew-full bg-slate-50 items-center text-sm justify-center min-h-screen text-black">
@@ -122,7 +121,7 @@ export const Dashboard = () => {
         <div className="w-full h-24 px-5">
           <div className="flex mt-4">
             <div className="flex items-center justify-start w-3/4 font-bold">
-              {user?.cabang}
+              {user?.name} - {user?.cabang}
             </div>
             <div className="flex items-center justify-end w-1/4 text-xs">
               <CurrentDate />

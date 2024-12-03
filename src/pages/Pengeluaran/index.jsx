@@ -101,7 +101,7 @@ export const Pengeluaran = () => {
               >
                 <option value="Pilih Petugas">Pilih Petugas</option>
                 <option value="Mamat">Mamat</option>
-                <option value="Bejo">Bejo</option>
+                <option value="">Bejo</option>
                 <option value="lainnya">Lainnya</option>
               </select>
             ) : (

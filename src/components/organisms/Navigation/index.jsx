@@ -10,8 +10,8 @@ export const Navigation = () => {
   const navigate = useNavigate();
 
   const logout = () => {
-    localStorage.removeItem('token'); // Hapus token dari localStorage
-    navigate('/auth'); // Arahkan pengguna ke halaman login
+    localStorage.removeItem("token"); // Hapus token dari localStorage
+    navigate("/auth"); // Arahkan pengguna ke halaman login
   };
 
   useEffect(() => {
@@ -98,14 +98,18 @@ export const Navigation = () => {
                 Export Rekap
               </Link>
             </li>
-            {/* <li>
-              <Link
-                to="/data-karyawan"
-                className="block py-2 px-4 hover:bg-gray-200"
-              >
-                Data Karyawan
-              </Link>
-            </li> */}
+            {!isAdmincabang && isAdminBesar && (
+              <>
+                <li>
+                  <Link
+                    to="/data-karyawan"
+                    className="block py-2 px-4 hover:bg-gray-200"
+                  >
+                    Data Karyawan
+                  </Link>
+                </li>
+              </>
+            )}
             <li>
               <Link
                 to="/pemasukan"
@@ -123,8 +127,8 @@ export const Navigation = () => {
             </li> */}
             <li>
               <button
-              className="block w-full text-left py-2 px-4 hover:bg-gray-200"
-              onClick={logout}
+                className="block w-full text-left py-2 px-4 hover:bg-gray-200"
+                onClick={logout}
               >
                 Keluar
               </button>
