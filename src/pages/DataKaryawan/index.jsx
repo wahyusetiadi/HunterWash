@@ -194,7 +194,7 @@ export const DataKaryawan = () => {
 
         {modalDelete && (
           <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center">
-            <div className="bg-white p-6 rounded-lg shadow-lg">
+            <div className="bg-white p-6 rounded-lg shadow-lg px-4">
               <h2 className="text-lg font-semibold">Konfirmasi Penghapusan</h2>
               <p className="mt-2">
                 Apakah Anda yakin ingin menghapus data ini?
