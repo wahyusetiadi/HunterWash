@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 // import Modal from "../ModalForm";
 
 function toTitleCaseWithSpace(str) {
@@ -18,23 +18,22 @@ export const Table = ({
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [showFiltered, setShowFiltered] = useState(false);
-  // const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentItems, setCurrentItems] = useState([]);
 
-  // Filter data berdasarkan tanggal jika showFiltered true
-  const filterDataFn = showFiltered
-    ? data.filter((item) => {
-        const itemDate = new Date(item.tanggal);
-        const start = startDate ? new Date(startDate) : null;
-        const end = endDate ? new Date(endDate) : null;
-        return (!start || itemDate >= start) && (!end || itemDate <= end);
-      })
-    : data;
+  useEffect(() => {
+    setCurrentItems(data);
+  }, []);
+
+  const filteredData = data.filter((item) => {
+    const itemDate = new Date(item.tanggal);
+    const start = startDate ? new Date(startDate) : null;
+    const end = endDate ? new Date(endDate) : null;
+    return (!start || itemDate >= start) && (!end || itemDate <= end);
+  });
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filterDataFn.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPage = Math.ceil(filterDataFn.length / itemsPerPage);
+  const totalPage = Math.ceil(filteredData.length / itemsPerPage);
 
   const formatTanggal = (tanggal) => {
     return new Date(tanggal).toLocaleDateString("id-ID", {
@@ -55,15 +54,22 @@ export const Table = ({
       .join(" ");
   };
 
-  // Dapatkan nama kolom berdasarkan data pertama, kecuali 'id'
   const columns = Object.keys(data[0] || {}).filter((key) => key !== "id");
 
   const handleDelete = (id) => {
     console.log("ID: yang akan dihapus:", id);
-    
     if (onDelete) {
-      onDelete(id); // Memanggil callback onDelete yang diterima sebagai props
+      onDelete(id);
     }
+  };
+
+  const handleClick = () => {
+    setCurrentItems(filteredData.slice(indexOfFirstItem, indexOfLastItem));
+  };
+
+  const handleChange = (e, callback) => {
+    e.preventDefault();
+    callback(e.target.value);
   };
 
   return (
@@ -78,7 +84,7 @@ export const Table = ({
                 type="date"
                 className="w-full p-1 border bg-white rounded-lg focus:ring-2 focus:ring-blue-500"
                 value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
+                onChange={(e) => handleChange(e, setStartDate)}
               />
             </div>
             <div className="flex flex-col items-start">
@@ -87,13 +93,13 @@ export const Table = ({
                 type="date"
                 className="w-full p-1 border bg-white rounded-lg focus:ring-2 focus:ring-blue-500"
                 value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
+                onChange={(e) => handleChange(e, setEndDate)}
               />
             </div>
           </div>
           <button
             className="px-4 py-2 bg-blue-500 text-white rounded-lg"
-            onClick={() => setShowFiltered(true)} // Trigger filter on button click
+            onClick={handleClick} // Trigger filter on button click
           >
             Lihat
           </button>
@@ -150,10 +156,11 @@ export const Table = ({
                   {showDeleteButton && (
                     <td className="py-2 px-6 text-left">
                       <button
-                        onClick={() =>{ console.log("item yang dihapus", item);
+                        onClick={() => {
+                          console.log("item yang dihapus", item);
                           console.log("ID item", item.id);
-                          
-                         onDelete(item)}}
+                          // onDelete(item);
+                        }}
                         className="px-4 py-2  text-xs font-medium bg-red-500 text-white rounded-lg hover:bg-red-600"
                       >
                         Hapus
