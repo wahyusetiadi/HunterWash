@@ -159,7 +159,7 @@ export const Table = ({
                         onClick={() => {
                           console.log("item yang dihapus", item);
                           console.log("ID item", item.id);
-                          // onDelete(item);
+                          onDelete(item);
                         }}
                         className="px-4 py-2  text-xs font-medium bg-red-500 text-white rounded-lg hover:bg-red-600"
                       >
