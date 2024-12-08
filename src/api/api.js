@@ -175,7 +175,7 @@ export const addUser = async (userData) => {
   }
 };
 
-// DELETE
+// ===== DELETE =====
 export const deleteUser = async (id) => {
   if (!id) {
     console.error("ID tidak valid:", id);
@@ -256,5 +256,49 @@ export const exportPengeluaran = async (cabang, fromDate, toDate) => {
   } catch (error) {
     console.error("Error exporting pengeluaran data:", error);
     throw error;
+  }
+};
+
+
+// ===== BIAYA =====
+
+export const getBiaya = async () => {
+  try {
+    const response = await axios.get(`${BASE_URL}/biaya`, {
+      headers: getAuthHeaders(),
+    });
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const addBiaya = async (biayaData) => {
+  try {
+    const response = await axios.post(`${BASE_URL}/biaya`, biayaData, {
+      headers: getAuthHeaders(),
+    });
+    return response;
+  } catch (error) {
+    console.error("Error added biaya:", error);
+    throw error;
+  }
+};
+
+export const deleteBiaya = async (id) => {
+  if(!id) {
+    console.error("ID tidak ditemukan", id);
+    return;
+  }
+
+  try{
+    const response = await axios.delete(`${BASE_URL}/biaya/${id}`, {
+      headers: getAuthHeaders(),
+    });
+    console.log("Response after delete", response);
+    return response;
+  } catch (error) {
+    console.error('Error delete biaya', error);
+    throw error;    
   }
 };

@@ -187,6 +187,7 @@ export const DataKaryawan = () => {
                 showDeleteButton={true}
                 onClickAdd={openModal}
                 onDelete={openModalDelete}
+                disabled={true}
               />
             )}
           </div>

@@ -14,36 +14,13 @@ export const Table = ({
   showAddButton = false,
   onClickAdd,
   onAdd,
+  disabled = false,
 }) => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [filteredData, setFilteredData] = useState(data); // State to hold filtered data
   const [currentItems, setCurrentItems] = useState([]);
-
-  useEffect(() => {
-    setCurrentItems(data);
-  }, []);
-
-  const filteredData = data.filter((item) => {
-    const itemDate = new Date(item.tanggal);
-    const start = startDate ? new Date(startDate) : null;
-    const end = endDate ? new Date(endDate) : null;
-    return (!start || itemDate >= start) && (!end || itemDate <= end);
-  });
-
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const totalPage = Math.ceil(filteredData.length / itemsPerPage);
-
-  const formatTanggal = (tanggal) => {
-    return new Date(tanggal).toLocaleDateString("id-ID", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    });
-  };
-
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   // Function to convert text to Title Case
   const toTitleCase = (str) => {
@@ -56,15 +33,43 @@ export const Table = ({
 
   const columns = Object.keys(data[0] || {}).filter((key) => key !== "id");
 
+  const formatTanggal = (tanggal) => {
+    return new Date(tanggal).toLocaleDateString("id-ID", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+  };
+
+  // Function to handle filtering based on the selected date range
+  const handleFilter = () => {
+    const newFilteredData = data.filter((item) => {
+      const itemDate = new Date(item.tanggal);
+      const start = startDate ? new Date(startDate) : null;
+      const end = endDate ? new Date(endDate) : null;
+      return (!start || itemDate >= start) && (!end || itemDate <= end);
+    });
+    setFilteredData(newFilteredData);
+    setCurrentPage(1); // Reset to first page after applying filter
+  };
+
+  // Pagination calculations
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const totalPage = Math.ceil(filteredData.length / itemsPerPage);
+
+  useEffect(() => {
+    const updatedData = filteredData.slice(indexOfFirstItem, indexOfLastItem);
+    setCurrentItems(updatedData);
+  }, [filteredData, currentPage]); // Update currentItems whenever filteredData or currentPage changes
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
   const handleDelete = (id) => {
     console.log("ID: yang akan dihapus:", id);
     if (onDelete) {
       onDelete(id);
     }
-  };
-
-  const handleClick = () => {
-    setCurrentItems(filteredData.slice(indexOfFirstItem, indexOfLastItem));
   };
 
   const handleChange = (e, callback) => {
@@ -99,7 +104,7 @@ export const Table = ({
           </div>
           <button
             className="px-4 py-2 bg-blue-500 text-white rounded-lg"
-            onClick={handleClick} // Trigger filter on button click
+            onClick={handleFilter} // Trigger filter on button click
           >
             Lihat
           </button>
@@ -161,7 +166,8 @@ export const Table = ({
                           console.log("ID item", item.id);
                           onDelete(item);
                         }}
-                        className="px-4 py-2  text-xs font-medium bg-red-500 text-white rounded-lg hover:bg-red-600"
+                        disabled={disabled}
+                        className="px-4 py-2 text-xs font-medium bg-red-500 text-white rounded-lg hover:bg-red-600"
                       >
                         Hapus
                       </button>

@@ -1,16 +1,35 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import IncomeLogo from "../../assets/income.svg";
 import { Navigation } from "../../components/organisms/Navigation";
 import { Button } from "../../components/atoms/Button";
 import { CardIcon } from "../../components/molecules/CardIcon";
 import { InputField } from "../../components/molecules/InputFiled";
-import { addExpanse } from "../../api/api";
+import { addExpanse, getCabangOptions, getUser } from "../../api/api";
 
 export const Pengeluaran = () => {
   const [keperluan, setKeperluan] = useState("");
   const [biaya, setBiaya] = useState("");
   const [petugas, setPetugas] = useState("");
-  const [petugasOption, setPetugasOption] = useState("");
+  const [petugasOption, setPetugasOption] = useState([]);
+  const [user, setUser] = useState(null);
+  const [selectedPetugas, setSelectedPetugas] = useState([]);
+
+  useEffect(() => {
+    const fetchUserAndPetugas = async () => {
+      try {
+        const userData = await getUser();
+        setUser(userData);
+        
+        const petugasData = await getCabangOptions();
+        const filterPetugas = petugasData.filter((petugas) => petugas.cabang === userData.cabang);
+        const petugasNames = filterPetugas.map((petugas) => petugas.name);
+        setSelectedPetugas(petugasNames);
+      } catch (error) {
+        console.error("Error fetching data", error);
+      }
+    };
+    fetchUserAndPetugas();
+  }, [])
 
   const handlePetugasOption = (e) => {
     setPetugasOption(e.target.value);
@@ -100,8 +119,10 @@ export const Pengeluaran = () => {
                 className="w-full px-4 py-2 border bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="Pilih Petugas">Pilih Petugas</option>
-                <option value="Mamat">Mamat</option>
-                <option value="">Bejo</option>
+                {selectedPetugas.map((petugas, index) => (
+                  <option key={index} value={petugas}>{petugas}</option>
+                ))}
+                {/* <option value={user?.name}>{user?.name}</option> */}
                 <option value="lainnya">Lainnya</option>
               </select>
             ) : (

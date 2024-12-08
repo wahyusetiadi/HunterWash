@@ -1,8 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { CardIcon } from "../../components/molecules/CardIcon";
 import { Navigation } from "../../components/organisms/Navigation";
 import BikeLogo from "../../assets/bike.svg";
-import { addTransaction } from "../../api/api"; 
+import {
+  addTransaction,
+  getBiaya,
+  getCabangOptions,
+  getUser,
+} from "../../api/api";
 
 export const Transaksi = () => {
   const [nomorPolisi, setNomorPolisi] = useState("");
@@ -10,12 +15,45 @@ export const Transaksi = () => {
   const [biaya, setBiaya] = useState("");
   const [petugas, setPetugas] = useState("");
   const [biayaOption, setBiayaOption] = useState("");
-  const [petugasOption, setPetugasOption] = useState("");
+  const [petugasOption, setPetugasOption] = useState([]);
+  const [user, setUser] = useState(null);
+  const [selectedPetugas, setSelectedPetugas] = useState([]);
+  const [isCost, setIsCost] = useState([]);
+
+  useEffect(() => {
+    const fetchUserAndPetugas = async () => {
+      try {
+        const userData = await getUser();
+        setUser(userData);
+
+        const petugasData = await getCabangOptions();
+        const filteredPetugas = petugasData.filter(
+          (petugas) => petugas.cabang === userData.cabang
+        );
+        const petugasNames = filteredPetugas.map((petugas) => petugas.name);
+        setSelectedPetugas(petugasNames);
+      } catch (error) {
+        console.error("Error fetching data", error);
+      }
+    };
+
+    const fetchingBiaya = async () => {
+      try {
+        const cost = await getBiaya();
+        setIsCost(cost.data.biaya);
+      } catch (error) {
+        console.error("Error fetching getBiaya", error);
+      }
+    };
+
+    fetchingBiaya();
+    fetchUserAndPetugas();
+  }, []);
 
   const handleBiayaOption = (e) => {
     setBiayaOption(e.target.value);
     if (e.target.value !== "lainnya") {
-      setBiaya(""); 
+      setBiaya("");
     }
   };
 
@@ -36,11 +74,16 @@ export const Transaksi = () => {
     console.log("Petugas Option:", petugasOption);
     console.log("Petugas Input:", petugas);
 
-    if (!nomorPolisi || !jenisKendaraan || (!biaya && biayaOption === "") || (!petugas && petugasOption === "")) {
+    if (
+      !nomorPolisi ||
+      !jenisKendaraan ||
+      (!biaya && biayaOption === "") ||
+      (!petugas && petugasOption === "")
+    ) {
       alert("Semua field harus diisi!");
       return;
     }
-    
+
     if (biayaOption === "lainnya" && isNaN(biaya)) {
       alert("Biaya harus berupa angka!");
       return;
@@ -53,8 +96,8 @@ export const Transaksi = () => {
       const response = await addTransaction({
         nomorPolisi,
         jenisKendaraan,
-        biaya: finalBiaya, 
-        petugas: finalPetugas, 
+        biaya: finalBiaya,
+        petugas: finalPetugas,
       });
 
       console.log("Transaksi berhasil ditambahkan", response.data);
@@ -77,8 +120,10 @@ export const Transaksi = () => {
   const isFormValid =
     nomorPolisi &&
     jenisKendaraan &&
-    (biayaOption !== "Pilih Biaya" && (biayaOption !== "lainnya" || (biayaOption === "lainnya" && biaya))) &&
-    (petugasOption !== "Pilih Petugas" && (petugasOption !== "lainnya" || (petugasOption === "lainnya" && petugas)));
+    biayaOption !== "Pilih Biaya" &&
+    (biayaOption !== "lainnya" || (biayaOption === "lainnya" && biaya)) &&
+    petugasOption !== "Pilih Petugas" &&
+    (petugasOption !== "lainnya" || (petugasOption === "lainnya" && petugas));
 
   console.log("Form Valid:", isFormValid);
 
@@ -139,8 +184,11 @@ export const Transaksi = () => {
                 className="w-full px-4 py-2 border bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="Pilih Biaya">Pilih Biaya</option>
-                <option value="15000">15000</option>
-                <option value="20000">20000</option>
+                {isCost.map((item) => (
+                  <option key={item.biaya} value={item.biaya}>
+                    {item.biaya}
+                  </option>
+                ))}
                 <option value="lainnya">Masukkan Biaya</option>
               </select>
             ) : (
@@ -168,9 +216,12 @@ export const Transaksi = () => {
                 className="w-full px-4 py-2 border bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="Pilih Petugas">Pilih Petugas</option>
-                <option value="Mamat">Mamat</option>
-                <option value="Bejo">Bejo</option>
-                <option value="lainnya">Lainnya</option>
+                {selectedPetugas.map((petugas, index) => (
+                  <option key={index} value={petugas}>
+                    {petugas}
+                  </option>
+                ))}
+                <option value="lainnya">Petugas Lainnya</option>
               </select>
             ) : (
               <input
@@ -184,13 +235,14 @@ export const Transaksi = () => {
             )}
           </div>
 
-          {/* Tombol Tambah Transaksi */}
           <button
-            type="submit"
-            className={`w-full py-3 mt-4 text-white rounded-lg ${isFormValid ? "bg-blue-500" : "bg-gray-400 cursor-not-allowed"}`}
             disabled={!isFormValid}
+            type="submit"
+            className={`w-full py-2 px-4 text-white rounded-lg focus:outline-none ${
+              isFormValid ? "bg-blue-500" : "bg-gray-300 cursor-not-allowed"
+            }`}
           >
-            Tambah Transaksi
+            Kirim Transaksi
           </button>
         </form>
       </div>
