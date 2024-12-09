@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Navigation } from "../../components/organisms/Navigation";
 import { Table } from "../../components/organisms/Table";
-import { addUser, deleteUser, getCabangOptions } from "../../api/api";
+import { addUser, deleteUser, getCabangOptions, getUser } from "../../api/api";
 import Modal from "../../components/organisms/ModalForm";
 
 export const DataKaryawan = () => {
@@ -14,6 +14,7 @@ export const DataKaryawan = () => {
   const [sendData, setSendData] = useState(null);
   const [modalDelete, setModalDelete] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
+  const [loggedUser, setLoggedUser] = useState(null);
 
   const openModalDelete = (item) => {
     setItemToDelete(item);
@@ -38,6 +39,14 @@ export const DataKaryawan = () => {
     console.log("Data yang di send:", formData);
   };
 
+  const fetchLoginUser = async () => {
+    try {
+      const user = await getUser();
+      setLoggedUser(user);
+    } catch (error) {
+      console.error("Error fetchin logged-in user:", error);
+    }
+  };
   // Fungsi untuk mengambil data karyawan dan cabang
   const fetchUser = async () => {
     setLoading(true);
@@ -64,6 +73,7 @@ export const DataKaryawan = () => {
 
   // Panggil fetchUser saat komponen pertama kali dimuat
   useEffect(() => {
+    fetchLoginUser();
     fetchUser();
   }, []);
 
@@ -103,7 +113,9 @@ export const DataKaryawan = () => {
 
   const filteredKaryawan =
     selectedCabang === "semua"
-      ? karyawan.map((user) => ({
+      ? karyawan
+      .filter((user) => user.id !== loggedUser?.id)
+      .map((user) => ({
           name: user.name,
           email: user.email,
           role: user.role,
@@ -114,6 +126,7 @@ export const DataKaryawan = () => {
         }))
       : karyawan
           .filter((user) => user.cabang === selectedCabang)
+          .filter((user) => user.id !== loggedUser?.id)
           .map((user) => ({
             name: user.name,
             email: user.email,
@@ -187,7 +200,6 @@ export const DataKaryawan = () => {
                 showDeleteButton={true}
                 onClickAdd={openModal}
                 onDelete={openModalDelete}
-                disabled={true}
               />
             )}
           </div>
