@@ -11,7 +11,7 @@ export const Navigation = () => {
 
   const logout = () => {
     localStorage.removeItem("token"); // Hapus token dari localStorage
-    navigate("/auth"); // Arahkan pengguna ke halaman login
+    navigate("/"); // Arahkan pengguna ke halaman login
   };
 
   useEffect(() => {

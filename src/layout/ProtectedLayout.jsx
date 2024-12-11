@@ -6,7 +6,7 @@ const ProtectedLayout = () => {
 
     const isAuthenticated = token && isTokenVaild(token);
     if (!isAuthenticated) {
-        return <Navigate to='/auth' />;
+        return <Navigate to='/' />;
     }
   return <Outlet />
 };
