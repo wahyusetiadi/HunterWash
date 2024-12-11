@@ -14,7 +14,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-          <Route path='/auth' element={<FormLogin />} />
+          <Route path='/' element={<FormLogin />} />
         <Route element={<ProtectedLayout />}>
           <Route path='/dashboard' element={<Dashboard />} />
           <Route path='/transaksi' element={<Transaksi />} />

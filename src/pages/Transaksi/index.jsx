@@ -8,34 +8,51 @@ import {
   getCabangOptions,
   getUser,
 } from "../../api/api";
+import CameraCapture from "../../components/organisms/Cam";
 
 export const Transaksi = () => {
   const [nomorPolisi, setNomorPolisi] = useState("");
   const [jenisKendaraan, setJenisKendaraan] = useState("");
   const [biaya, setBiaya] = useState("");
+  const [cabang, setCabang] = useState("");
   const [petugas, setPetugas] = useState("");
   const [biayaOption, setBiayaOption] = useState("");
   const [petugasOption, setPetugasOption] = useState([]);
   const [user, setUser] = useState(null);
-  const [selectedPetugas, setSelectedPetugas] = useState([]);
+  const [selectedCabang, setSelectedCabang] = useState("");
   const [isCost, setIsCost] = useState([]);
+  const [isCabang, setIsCabang] = useState([]);
+  const [cabangOption, setCabangOption] = useState("");
 
   useEffect(() => {
-    const fetchUserAndPetugas = async () => {
+    const fetchUser = async () => {
       try {
         const userData = await getUser();
         setUser(userData);
-
-        const petugasData = await getCabangOptions();
-        const filteredPetugas = petugasData.filter(
-          (petugas) => petugas.cabang === userData.cabang
-        );
-        const petugasNames = filteredPetugas.map((petugas) => petugas.name);
-        setSelectedPetugas(petugasNames);
+        // const petugasData = await getCabangOptions();
+        // const filteredPetugas = petugasData.filter(
+        //   (petugas) => petugas.cabang === userData.cabang
+        // );
+        // const petugasNames = filteredPetugas.map((petugas) => petugas.name);
+        // setSelectedPetugas(petugasNames);
       } catch (error) {
         console.error("Error fetching data", error);
       }
     };
+    
+    const fetchCabang = async () => {
+      try {
+        const data = await getCabangOptions();
+        const filteredCabang = data.filter(branch => branch.cabang !== "pusat")
+        setIsCabang(filteredCabang);
+        
+        const branches = filteredCabang.map(branch => branch.cabang);
+        const uniqueBranches = [...new Set(branches)];
+        setCabangOption(uniqueBranches);
+      } catch (error) {
+        console.error("Error fetching cabang", error); 
+      }
+    }
 
     const fetchingBiaya = async () => {
       try {
@@ -47,7 +64,8 @@ export const Transaksi = () => {
     };
 
     fetchingBiaya();
-    fetchUserAndPetugas();
+    fetchUser();
+    fetchCabang();
   }, []);
 
   const handleBiayaOption = (e) => {
@@ -57,64 +75,87 @@ export const Transaksi = () => {
     }
   };
 
-  const handlePetugasOption = (e) => {
-    setPetugasOption(e.target.value);
-    if (e.target.value !== "lainnya") {
-      setPetugas("");
-    }
-  };
+  const handleCabangOption = (e) => {
+    setSelectedCabang(e.target.value)
+  }
+
+  // const handlePetugasOption = (e) => {
+  //   setPetugasOption(e.target.value);
+  //   if (e.target.value !== "lainnya") {
+  //     setPetugas("");
+  //   }
+  // };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     console.log("Nomor Polisi:", nomorPolisi);
     console.log("Jenis Kendaraan:", jenisKendaraan);
     console.log("Biaya Option:", biayaOption);
     console.log("Biaya Input:", biaya);
     console.log("Petugas Option:", petugasOption);
-    console.log("Petugas Input:", petugas);
-
-    if (
-      !nomorPolisi ||
-      !jenisKendaraan ||
-      (!biaya && biayaOption === "") ||
-      (!petugas && petugasOption === "")
-    ) {
-      alert("Semua field harus diisi!");
+    console.log("Cabang Option:", cabangOption);
+  
+    // Validasi Form: Pastikan semua field terisi dengan benar
+    if (!nomorPolisi || !jenisKendaraan) {
+      alert("Nomor Polisi dan Jenis Kendaraan harus diisi!");
       return;
     }
-
-    if (biayaOption === "lainnya" && isNaN(biaya)) {
+  
+    // Validasi Biaya: Pilih Biaya atau Biaya Lainnya yang valid
+    if (biayaOption === "Pilih Biaya" || !biayaOption) {
+      alert("Biaya harus dipilih!");
+      return;
+    }
+  
+    if (biayaOption === "lainnya" && (!biaya || isNaN(biaya))) {
       alert("Biaya harus berupa angka!");
       return;
     }
-
+  
+    // Validasi Petugas: Pastikan petugas dipilih atau otomatis menggunakan user
+    if (petugasOption.length === 0 && !user?.name) {
+      alert("Petugas harus dipilih!");
+      return;
+    }
+  
+    // Validasi Cabang: Pastikan cabang dipilih
+    if (cabangOption.length === 0 || !selectedCabang) {
+      alert("Cabang harus dipilih!");
+      return;
+    }
+  
+    // Jika semua validasi lolos, kirim data
     const finalBiaya = biayaOption === "lainnya" ? biaya : biayaOption;
-    const finalPetugas = petugasOption === "lainnya" ? petugas : petugasOption;
-
+    const finalPetugas = user?.name || petugasOption[0]; // Ambil petugas dari user atau opsi yang dipilih
+  
     try {
       const response = await addTransaction({
         nomorPolisi,
         jenisKendaraan,
         biaya: finalBiaya,
         petugas: finalPetugas,
+        cabang: selectedCabang,
       });
-
+  
       console.log("Transaksi berhasil ditambahkan", response.data);
       alert("Data Transaksi telah berhasil dikirim!");
-
+  
       // Reset form setelah submit
       setNomorPolisi("");
       setJenisKendaraan("");
       setBiaya("");
+      setCabang("");
+      setCabangOption("");
       setPetugas("");
       setBiayaOption("");
-      setPetugasOption("");
+      setPetugasOption([]);
     } catch (error) {
       console.error("Error saat menambahkan transaksi:", error);
       alert(error.response?.data?.message || "Gagal mengirim data transaksi!");
     }
   };
+  
 
   // Validasi form untuk menonaktifkan tombol jika ada field yang kosong
   const isFormValid =
@@ -122,10 +163,16 @@ export const Transaksi = () => {
     jenisKendaraan &&
     biayaOption !== "Pilih Biaya" &&
     (biayaOption !== "lainnya" || (biayaOption === "lainnya" && biaya)) &&
-    petugasOption !== "Pilih Petugas" &&
-    (petugasOption !== "lainnya" || (petugasOption === "lainnya" && petugas));
+    cabangOption !== "Pilih Cabang" && 
+    petugasOption !== "Pilih Petugas";
 
-  console.log("Form Valid:", isFormValid);
+  // console.log("Form Valid:", isFormValid);
+
+  const handleSaveImage = (imageUrl) => {
+    console.log('Image saved:', imageUrl);
+    // Logika simpan gambar ke database (misalnya menggunakan db.sqlite)
+    // Anda bisa menggunakan SQLite atau backend lain untuk menyimpan gambar
+  };
 
   return (
     <div className="w-full bg-slate-50">
@@ -203,12 +250,42 @@ export const Transaksi = () => {
             )}
           </div>
 
+          {/* Cabang */}
+          <div className="mb-4 flex flex-col items-start">
+            <label htmlFor="cabang" className="font-semibold mb-2">
+              Cabang
+            </label>
+            <select
+              required
+              value={selectedCabang}
+              onChange={handleCabangOption}
+              className="w-full mt-4 px-4 py-2 border bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">Pilih Cabang</option>
+              {cabangOption.length > 0 ? (
+                cabangOption.map((cabang, index) => (
+                  <option key={index} value={cabang}>{cabang}</option>
+                ))
+              ) : (
+                <></>
+              )}
+              {/* {isCabang.map((item) => (
+                <option key={item.cabang} value={item.cabang}>{item.cabang}</option>
+              ))} */}
+            </select>
+          </div>
+                <CameraCapture onSave={handleSaveImage} />
           {/* Petugas */}
           <div className="mb-4 flex flex-col items-start">
             <label htmlFor="petugas" className="font-semibold mb-2">
               Petugas
             </label>
-            {petugasOption !== "lainnya" ? (
+            <input
+              type="text"
+              placeholder={user?.name}
+              className="w-full mt-4 px-4 py-2 border bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              disabled />
+            {/* {petugasOption !== "lainnya" ? (
               <select
                 required
                 value={petugasOption}
@@ -232,15 +309,14 @@ export const Transaksi = () => {
                 onChange={(e) => setPetugas(e.target.value)}
                 className="w-full mt-4 px-4 py-2 border bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
-            )}
+            )} */}
           </div>
 
           <button
             disabled={!isFormValid}
             type="submit"
-            className={`w-full py-2 px-4 text-white rounded-lg focus:outline-none ${
-              isFormValid ? "bg-blue-500" : "bg-gray-300 cursor-not-allowed"
-            }`}
+            className={`w-full py-2 px-4 mb-6 text-white rounded-lg focus:outline-none ${isFormValid ? "bg-blue-500" : "bg-gray-300 cursor-not-allowed"
+              }`}
           >
             Kirim Transaksi
           </button>

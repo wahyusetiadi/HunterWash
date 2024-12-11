@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const BASE_URL = "http://localhost:5000/api"; // Menyimpan URL dasar untuk API
+// const BASE_URL = "https://wash.huntersmithnusantara.id/api/v1"; // Menyimpan URL dasar untuk API
+const BASE_URL = import.meta.env.VITE_BASE_URL
 
 // ===== Local Storage =====
 const getAuthHeaders = () => {

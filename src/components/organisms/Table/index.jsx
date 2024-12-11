@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-// import Modal from "../ModalForm";
 
 function toTitleCaseWithSpace(str) {
   return str.replace(/([a-z])([A-Z])/g, "$1 $2");
@@ -15,14 +14,15 @@ export const Table = ({
   onClickAdd,
   onAdd,
   disabled = false,
+  showUpdateButton = false, // Prop to control showing the Update button
+  onUpdate, // Prop for update action
 }) => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [filteredData, setFilteredData] = useState(data); // State to hold filtered data
+  const [filteredData, setFilteredData] = useState(data);
   const [currentItems, setCurrentItems] = useState([]);
 
-  // Function to convert text to Title Case
   const toTitleCase = (str) => {
     return str
       .toLowerCase()
@@ -41,7 +41,6 @@ export const Table = ({
     });
   };
 
-  // Function to handle filtering based on the selected date range
   const handleFilter = () => {
     const newFilteredData = data.filter((item) => {
       const itemDate = new Date(item.tanggal);
@@ -53,7 +52,7 @@ export const Table = ({
     setCurrentPage(1); // Reset to first page after applying filter
   };
 
-  // Pagination calculations
+  // Pagination logic
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const totalPage = Math.ceil(filteredData.length / itemsPerPage);
@@ -61,7 +60,7 @@ export const Table = ({
   useEffect(() => {
     const updatedData = filteredData.slice(indexOfFirstItem, indexOfLastItem);
     setCurrentItems(updatedData);
-  }, [filteredData, currentPage]); // Update currentItems whenever filteredData or currentPage changes
+  }, [filteredData, currentPage]);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
@@ -79,7 +78,6 @@ export const Table = ({
 
   return (
     <div>
-      {/* Conditionally render the filter inputs */}
       {filterData && (
         <div className="flex flex-col gap-4">
           <div className="flex gap-4">
@@ -104,13 +102,13 @@ export const Table = ({
           </div>
           <button
             className="px-4 py-2 bg-blue-500 text-white rounded-lg"
-            onClick={handleFilter} // Trigger filter on button click
+            onClick={handleFilter}
           >
             Lihat
           </button>
         </div>
       )}
-      {/* Render tombol tambah data jika showAddButton true */}
+
       {showAddButton && (
         <div className="flex justify-end my-4">
           <button
@@ -121,6 +119,7 @@ export const Table = ({
           </button>
         </div>
       )}
+
       <div className="overflow-x-auto mt-4 rounded-lg">
         <table
           border="1"
@@ -130,17 +129,15 @@ export const Table = ({
         >
           <thead className="bg-blue-400 text-gray-800 rounded">
             <tr>
-              <th className="py-4 px-6 text-left">No</th>{" "}
-              {/* Kolom untuk nomor urut */}
+              <th className="py-4 px-6 text-left">No</th>
               {columns.map((col) => (
                 <th key={col} className="py-2 px-6 text-left">
                   {toTitleCase(toTitleCaseWithSpace(col)) === "Nomorpolisi"
                     ? "Nomor Polisi"
-                    : toTitleCase(toTitleCaseWithSpace(col))}{" "}
-                  {/* Nama kolom yang sudah dalam Title Case */}
+                    : toTitleCase(toTitleCaseWithSpace(col))}
                 </th>
               ))}
-              {showDeleteButton && (
+              {(showDeleteButton || showUpdateButton) && (
                 <th className="py-2 px-6 text-left">Aksi</th>
               )}
             </tr>
@@ -149,7 +146,6 @@ export const Table = ({
             {currentItems.length > 0 ? (
               currentItems.map((item, index) => (
                 <tr key={item.id} className="border-b">
-                  {/* Menampilkan No berdasarkan halaman dan urutan */}
                   <td className="py-2 px-6 text-left">
                     {index + 1 + (currentPage - 1) * itemsPerPage}
                   </td>
@@ -158,26 +154,35 @@ export const Table = ({
                       {col === "tanggal" ? formatTanggal(item[col]) : item[col]}
                     </td>
                   ))}
-                  {showDeleteButton && (
-                    <td className="py-2 px-6 text-left">
-                      <button
-                        onClick={() => {
-                          console.log("item yang dihapus", item);
-                          console.log("ID item", item.id);
-                          onDelete(item);
-                        }}
-                        disabled={disabled}
-                        className="px-4 py-2 text-xs font-medium bg-red-500 text-white rounded-lg hover:bg-red-600"
-                      >
-                        Hapus
-                      </button>
+                  {(showDeleteButton || showUpdateButton) && (
+                    <td className="py-2 px-6 text-left flex">
+                      {/* Update Button */}
+                      {showUpdateButton && (
+                        <button
+                          onClick={() => onUpdate(item)} // Call the onUpdate with the current item
+                          disabled={disabled}
+                          className="px-4 py-2 text-xs font-medium bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 mr-2"
+                        >
+                          Update
+                        </button>
+                      )}
+                      {/* Delete Button */}
+                      {showDeleteButton && (
+                        <button
+                          onClick={() => handleDelete(item.id)}
+                          disabled={disabled}
+                          className="px-4 py-2 text-xs font-medium bg-red-500 text-white rounded-lg hover:bg-red-600"
+                        >
+                          Hapus
+                        </button>
+                      )}
                     </td>
                   )}
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan={columns.length + (showDeleteButton ? 1 : 0)}>
+                <td colSpan={columns.length + (showDeleteButton || showUpdateButton ? 1 : 0)}>
                   Tidak ada data untuk tanggal yang dipilih.
                 </td>
               </tr>
@@ -201,11 +206,6 @@ export const Table = ({
           </button>
         ))}
       </div>
-      {/* <Modal 
-      isOpen={isModalOpen}
-      onClose={closeModal}
-      onSubmit={handleSubmit}
-      /> */}
     </div>
   );
 };

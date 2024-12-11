@@ -200,6 +200,7 @@ export const DataKaryawan = () => {
                 showDeleteButton={true}
                 onClickAdd={openModal}
                 onDelete={openModalDelete}
+                // showUpdateButton={true}
               />
             )}
           </div>

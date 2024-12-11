@@ -5,7 +5,7 @@ export const CardIcon = ({ logo, colorbg, coloricon, title, subtitle, link }) =>
   return (
     <Link to={link}>
       <div
-        className={`${colorbg} h-32 rounded-md flex flex-col items-center justify-center mb-4 ${
+        className={`${colorbg} h-32 rounded-md flex flex-col items-center justify-center mb-4 px-5 ${
           subtitle ? "gap-3" : "gap-2"
         }`}
       >
