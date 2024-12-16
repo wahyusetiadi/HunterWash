@@ -4,9 +4,11 @@ import Webcam from 'react-webcam';
 const CameraCapture = ({ onSave }) => {
   const [isCameraOn, setIsCameraOn] = useState(false);
   const [imageUrl, setImageUrl] = useState(null);
+  const [message, setMessage] = useState('');
 
   const handleStartCamera = () => {
     setIsCameraOn(true);
+    setMessage('');
   };
 
   const handleCapture = (webcamRef) => {
@@ -18,18 +20,23 @@ const CameraCapture = ({ onSave }) => {
   const handleRetake = () => {
     setImageUrl(null);
     setIsCameraOn(true); // Turn camera back on to retake photo
+    setMessage('');
   };
 
   const handleSave = () => {
     if (imageUrl) {
       // Simulate saving to database or any other logic
       onSave(imageUrl);
+      setMessage('Gambar berhasil disimpan!');
+      setImageUrl(null);
+      setIsCameraOn(false);
     }
   };
 
   const handleCancel = () => {
     setImageUrl(null);
     setIsCameraOn(false); // Turn off camera
+    setMessage('');
   };
 
   const webcamRef = React.useRef(null);
@@ -40,7 +47,7 @@ const CameraCapture = ({ onSave }) => {
         <button className='py-2 px-4 rounded-lg bg-blue-500 text-white font-medium mb-2' onClick={handleStartCamera}>Ambil Gambar</button>
       )}
 
-      {isCameraOn && !imageUrl && (
+      {isCameraOn && !imageUrl && !message && (
         <div>
           <Webcam
             audio={false}
@@ -57,7 +64,7 @@ const CameraCapture = ({ onSave }) => {
         </div>
       )}
 
-      {imageUrl && (
+      {imageUrl && !message && (
         <div>
           <img src={imageUrl} alt="Captured" width="100%" />
           <div className='flex gap-4 justify-center mt-4'>
@@ -65,6 +72,11 @@ const CameraCapture = ({ onSave }) => {
             <button className='py-2 px-4 rounded-lg bg-red-500 text-white font-medium mb-2' onClick={handleCancel}>Batal</button>
             <button className='py-2 px-4 rounded-lg bg-green-500 text-white font-medium mb-2' onClick={handleSave}>Simpan</button>
           </div>
+        </div>
+      )}
+      {message && !isCameraOn && !imageUrl && (
+        <div className="text-center mt-4">
+          <p className="text-green-500">{message}</p>
         </div>
       )}
     </div>

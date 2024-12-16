@@ -217,7 +217,8 @@ export const DataKaryawan = () => {
                 showDeleteButton={true}
                 onClickAdd={openModal}
                 onDelete={openModalDelete}
-                showImageColumn={false} // Add this line to hide the image column
+                // showImageColumn={false} // Add this line to hide the image column
+                
               />
             )}
           </div>

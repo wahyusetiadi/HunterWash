@@ -78,7 +78,7 @@ export const Income = () => {
             <label htmlFor="username" className="font-semibold mb-2">Cabang</label>
             <select
               className="border p-2 rounded bg-white w-full"
-              disabled={user?.role === 'admin_cabang'} // Nonaktifkan select untuk admin cabang
+              // disabled={user?.role === 'admin_cabang'} // Nonaktifkan select untuk admin cabang
               value={selectedCabang}
               onChange={handleCabangChange}
             >
