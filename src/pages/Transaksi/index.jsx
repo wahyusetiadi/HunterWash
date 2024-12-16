@@ -23,6 +23,7 @@ export const Transaksi = () => {
   const [isCost, setIsCost] = useState([]);
   const [isCabang, setIsCabang] = useState([]);
   const [cabangOption, setCabangOption] = useState("");
+  const [capturedImage, setCapturedImage] = useState(null);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -120,23 +121,30 @@ export const Transaksi = () => {
     }
   
     // Validasi Cabang: Pastikan cabang dipilih
-    if (cabangOption.length === 0 || !selectedCabang) {
-      alert("Cabang harus dipilih!");
+    // if (cabangOption.length === 0 || !selectedCabang) {
+    //   alert("Cabang harus dipilih!");
+    //   return;
+    // }
+    if(!selectedCabang) {
+      alert("Cabang harus dipilih1");
       return;
     }
   
     // Jika semua validasi lolos, kirim data
     const finalBiaya = biayaOption === "lainnya" ? biaya : biayaOption;
     const finalPetugas = user?.name || petugasOption[0]; // Ambil petugas dari user atau opsi yang dipilih
+
+    const transactionData = {
+      nomorPolisi,
+      jenisKendaraan,
+      biaya: finalBiaya,
+      petugas: finalPetugas,
+      cabang: selectedCabang,
+      image: capturedImage,
+    };
   
     try {
-      const response = await addTransaction({
-        nomorPolisi,
-        jenisKendaraan,
-        biaya: finalBiaya,
-        petugas: finalPetugas,
-        cabang: selectedCabang,
-      });
+      const response = await addTransaction(transactionData);
   
       console.log("Transaksi berhasil ditambahkan", response.data);
       alert("Data Transaksi telah berhasil dikirim!");
@@ -150,6 +158,7 @@ export const Transaksi = () => {
       setPetugas("");
       setBiayaOption("");
       setPetugasOption([]);
+      setCapturedImage(null);
     } catch (error) {
       console.error("Error saat menambahkan transaksi:", error);
       alert(error.response?.data?.message || "Gagal mengirim data transaksi!");
@@ -170,6 +179,7 @@ export const Transaksi = () => {
 
   const handleSaveImage = (imageUrl) => {
     console.log('Image saved:', imageUrl);
+    setCapturedImage(imageUrl);
     // Logika simpan gambar ke database (misalnya menggunakan db.sqlite)
     // Anda bisa menggunakan SQLite atau backend lain untuk menyimpan gambar
   };

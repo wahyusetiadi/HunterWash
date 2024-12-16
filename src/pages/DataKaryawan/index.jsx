@@ -16,14 +16,31 @@ export const DataKaryawan = () => {
   const [itemToDelete, setItemToDelete] = useState(null);
   const [loggedUser, setLoggedUser] = useState(null);
 
-  const openModalDelete = (item) => {
-    setItemToDelete(item);
-    setModalDelete(true);
+  const openModalDelete = (itemOrId) => {
+    // Handle both cases: when receiving full item object or just ID
+    if (typeof itemOrId === "object" && itemOrId !== null) {
+      setItemToDelete(itemOrId);
+      setModalDelete(true);
+    } else if (typeof itemOrId === "number" || typeof itemOrId === "string") {
+      // Find the full item in karyawan array using the ID
+      const item = karyawan.find((k) => k.id === itemOrId);
+      if (item) {
+        setItemToDelete(item);
+        setModalDelete(true);
+      } else {
+        console.error("Could not find item with ID:", itemOrId);
+        setError("Data tidak ditemukan");
+      }
+    } else {
+      console.error("Invalid input for deletion:", itemOrId);
+      setError("Input tidak valid");
+    }
   };
 
   const closeModalDelete = () => {
     setModalDelete(false);
     setItemToDelete(null);
+    setError(null);
   };
 
   const openModal = () => {
@@ -44,10 +61,10 @@ export const DataKaryawan = () => {
       const user = await getUser();
       setLoggedUser(user);
     } catch (error) {
-      console.error("Error fetchin logged-in user:", error);
+      console.error("Error fetching logged-in user:", error);
     }
   };
-  // Fungsi untuk mengambil data karyawan dan cabang
+
   const fetchUser = async () => {
     setLoading(true);
     try {
@@ -71,7 +88,6 @@ export const DataKaryawan = () => {
     }
   };
 
-  // Panggil fetchUser saat komponen pertama kali dimuat
   useEffect(() => {
     fetchLoginUser();
     fetchUser();
@@ -80,29 +96,30 @@ export const DataKaryawan = () => {
   const handleAddUser = async (userData) => {
     setLoading(true);
     try {
-      const response = await addUser(userData);
-      // Setelah berhasil menambah user, langsung ambil data karyawan terbaru
-      await fetchUser(); // Menarik data terbaru dari server
+      await addUser(userData);
+      await fetchUser();
       setIsModal(false);
+      setError(null);
     } catch (error) {
       console.error("Error adding user:", error);
+      setError("Gagal Menambah User");
     } finally {
       setLoading(false);
     }
   };
 
   const handleDeleteUser = async (id) => {
-    console.log("ID yang diteruskan:", id);
     if (!id) {
-      console.error("ID tidak valid", id);
+      setError("ID tidak valid untuk penghapusan");
       return;
     }
 
     setLoading(true);
     try {
       await deleteUser(id);
-      setKaryawan((prevUsers) => prevUsers.filter((user) => user.id !== id));
+      await fetchUser();
       closeModalDelete();
+      setError(null);
     } catch (error) {
       console.error("Error Delete User:", error);
       setError("Gagal Menghapus User");
@@ -114,16 +131,16 @@ export const DataKaryawan = () => {
   const filteredKaryawan =
     selectedCabang === "semua"
       ? karyawan
-      .filter((user) => user.id !== loggedUser?.id)
-      .map((user) => ({
-          name: user.name,
-          email: user.email,
-          role: user.role,
-          cabang: user.cabang,
-          createAt: user.dibuatTanggal,
-          timeAt: user.dibuatJam,
-          id: user.id,
-        }))
+          .filter((user) => user.id !== loggedUser?.id)
+          .map((user) => ({
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            cabang: user.cabang,
+            createAt: user.dibuatTanggal,
+            timeAt: user.dibuatJam,
+            id: user.id,
+          }))
       : karyawan
           .filter((user) => user.cabang === selectedCabang)
           .filter((user) => user.id !== loggedUser?.id)
@@ -151,7 +168,6 @@ export const DataKaryawan = () => {
       </div>
 
       <div className="px-5 text-sm">
-        {/* Form untuk memilih cabang */}
         <form>
           <div className="mb-4 flex flex-col items-start">
             <label className="font-semibold mb-2" htmlFor="cabangSelect">
@@ -178,15 +194,16 @@ export const DataKaryawan = () => {
           </div>
         </form>
 
-        {/* Menampilkan status loading */}
         {loading && (
           <div className="text-center py-4">Memuat data karyawan...</div>
         )}
 
-        {/* Menampilkan error jika ada */}
-        {error && <div className="text-center text-red-500 py-4">{error}</div>}
+        {error && (
+          <div className="text-center text-red-500 py-4 mb-4">{error}</div>
+        )}
 
-        {/* Menampilkan data karyawan jika tidak ada error dan tidak sedang loading */}
+        {/* ... rest of your DataKaryawan component ... */}
+
         {!loading && !error && (
           <div className="mt-4">
             {filteredKaryawan.length === 0 ? (
@@ -200,18 +217,20 @@ export const DataKaryawan = () => {
                 showDeleteButton={true}
                 onClickAdd={openModal}
                 onDelete={openModalDelete}
-                // showUpdateButton={true}
+                showImageColumn={false} // Add this line to hide the image column
               />
             )}
           </div>
         )}
 
-        {modalDelete && (
-          <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center">
+        {/* ... rest of your DataKaryawan component ... */}
+
+        {modalDelete && itemToDelete && (
+          <div className="fixed inset-0 px-5 bg-gray-500 bg-opacity-50 flex justify-center items-center">
             <div className="bg-white p-6 rounded-lg shadow-lg px-4">
               <h2 className="text-lg font-semibold">Konfirmasi Penghapusan</h2>
               <p className="mt-2">
-                Apakah Anda yakin ingin menghapus data ini?
+                Apakah Anda yakin ingin menghapus data {itemToDelete.name}?
               </p>
               <div className="mt-4 flex justify-end space-x-4">
                 <button

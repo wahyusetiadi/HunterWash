@@ -59,6 +59,11 @@ export const Income = () => {
     setSelectedCabang(event.target.value); // Update cabang yang dipilih
   };
 
+  const dataWithImageUrls = filteredTransactions.map(transactions => ({
+    ...transactions,
+    imageUrl: transactions.imageUrl || 'default-image-url.jpg',
+  }));
+
   return (
     <div className="w-full bg-slate-50">
       <Navigation />

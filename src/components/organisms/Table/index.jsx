@@ -4,6 +4,7 @@ function toTitleCaseWithSpace(str) {
   return str.replace(/([a-z])([A-Z])/g, "$1 $2");
 }
 
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 export const Table = ({
   data,
   filterData = true,
@@ -16,6 +17,7 @@ export const Table = ({
   disabled = false,
   showUpdateButton = false, // Prop to control showing the Update button
   onUpdate, // Prop for update action
+  baseUrl = BASE_URL, // Base URL for image paths
 }) => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -31,7 +33,10 @@ export const Table = ({
       .join(" ");
   };
 
-  const columns = Object.keys(data[0] || {}).filter((key) => key !== "id");
+  // Mendapatkan kolom yang ada, kecuali 'id' dan yang undefined
+  const columns = Object.keys(data[0] || {}).filter(
+    (key) => key !== "id" && key !== "imageUrl" && key !== "gambar"
+  ); // Hapus imageUrl dan gambar dari columns
 
   const formatTanggal = (tanggal) => {
     return new Date(tanggal).toLocaleDateString("id-ID", {
@@ -140,8 +145,11 @@ export const Table = ({
               {(showDeleteButton || showUpdateButton) && (
                 <th className="py-2 px-6 text-left">Aksi</th>
               )}
+              {/* Kolom Gambar */}
+              <th className="py-2 px-6 text-left">Gambar</th>
             </tr>
           </thead>
+
           <tbody className="text-gray-700 text-xs">
             {currentItems.length > 0 ? (
               currentItems.map((item, index) => (
@@ -154,22 +162,21 @@ export const Table = ({
                       {col === "tanggal" ? formatTanggal(item[col]) : item[col]}
                     </td>
                   ))}
+                  
                   {(showDeleteButton || showUpdateButton) && (
                     <td className="py-2 px-6 text-left flex">
-                      {/* Update Button */}
                       {showUpdateButton && (
                         <button
-                          onClick={() => onUpdate(item)} // Call the onUpdate with the current item
+                          onClick={() => onUpdate(item)}
                           disabled={disabled}
                           className="px-4 py-2 text-xs font-medium bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 mr-2"
                         >
                           Update
                         </button>
                       )}
-                      {/* Delete Button */}
                       {showDeleteButton && (
                         <button
-                          onClick={() => handleDelete(item.id)}
+                          onClick={() => handleDelete(item.id)} // Use item.id here
                           disabled={disabled}
                           className="px-4 py-2 text-xs font-medium bg-red-500 text-white rounded-lg hover:bg-red-600"
                         >
@@ -178,11 +185,30 @@ export const Table = ({
                       )}
                     </td>
                   )}
+                  <td className="py-2 px-6 text-left">
+                    {item.gambar ? (
+                      <a
+                        href={`${baseUrl}${item.gambar}`}
+                        download={item.gambar.split("/").pop()}
+                        className="text-blue-500 hover:underline"
+                      >
+                        Unduh Gambar
+                      </a>
+                    ) : (
+                      "No Image"
+                    )}
+                  </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan={columns.length + (showDeleteButton || showUpdateButton ? 1 : 0)}>
+                <td
+                  colSpan={
+                    columns.length +
+                    (showDeleteButton || showUpdateButton ? 1 : 0) +
+                    1
+                  }
+                >
                   Tidak ada data untuk tanggal yang dipilih.
                 </td>
               </tr>

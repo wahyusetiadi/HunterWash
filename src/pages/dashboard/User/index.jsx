@@ -134,7 +134,7 @@ export const Dashboard = () => {
                 ? `${totalTransaksi.toLocaleString()}`
                 : error || "Loading..."}
             </h1>
-            <p className="text-sm">Transaksi Hari ini</p>
+            <p className="text-sm">Transaksi Cabang Hari ini</p>
           </div>
           {/* Pendapatan Card */}
           <div className="flex flex-col p-2 mt-4 items-center justify-center rounded-md bg-green-100">
@@ -143,7 +143,7 @@ export const Dashboard = () => {
                 ? `Rp ${pendapatan.toLocaleString()}`
                 : error || "Loading..."}
             </h1>
-            <p className="text-sm">Pendapatan Hari ini</p>
+            <p className="text-sm">Pendapatan Cabang Hari ini</p>
           </div>
 
           <div className="flex flex-col p-2 mt-4 items-center justify-center rounded-md bg-red-100">
@@ -152,7 +152,7 @@ export const Dashboard = () => {
                 ? `Rp ${pengeluaran.toLocaleString()}`
                 : error || "Loading..."}
             </h1>
-            <p className="text-sm">Pengeluaran Hari ini</p>
+            <p className="text-sm">Pengeluaran Cabang Hari ini</p>
           </div>
 
           <h1 className="font-bold my-4">Daftar Menu</h1>
