@@ -217,7 +217,7 @@ export const Table = ({
         </table>
       </div>
 
-      <div className="flex justify-center mt-4">
+      {/* <div className="flex justify-center mt-4">
         {Array.from({ length: totalPage }, (_, index) => (
           <button
             key={index + 1}
@@ -231,7 +231,85 @@ export const Table = ({
             {index + 1}
           </button>
         ))}
-      </div>
+      </div> */}
+      <div className="flex justify-center mt-4 px-4 py-2">
+  {/* Tombol First */}
+  <button
+    onClick={() => paginate(1)}
+    disabled={currentPage === 1}
+    className={`px-3 py-1 mx-1 rounded ${
+      currentPage === 1
+        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+    }`}
+  >
+     &lt;&lt;
+  </button>
+
+  {/* Tombol Prev */}
+  <button
+    onClick={() => paginate(currentPage - 1)}
+    disabled={currentPage === 1}
+    className={`px-3 py-1 mx-1 rounded ${
+      currentPage === 1
+        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+    }`}
+  >
+     &lt;
+  </button>
+
+  {/* Tombol halaman */}
+  {Array.from({ length: totalPage }, (_, index) => {
+    const pageNumber = index + 1;
+    if (
+      pageNumber >= currentPage - 1 && // Show previous 2 pages
+      pageNumber <= currentPage + 1 // Show next 2 pages
+    ) {
+      return (
+        <button
+          key={pageNumber}
+          onClick={() => paginate(pageNumber)}
+          className={`px-3 py-1 mx-1 rounded ${
+            currentPage === pageNumber
+              ? "bg-blue-500 text-white"
+              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+          }`}
+        >
+          {pageNumber}
+        </button>
+      );
+    }
+    return null;
+  })}
+
+  {/* Tombol Next */}
+  <button
+    onClick={() => paginate(currentPage + 1)}
+    disabled={currentPage === totalPage}
+    className={`px-3 py-1 mx-1 rounded ${
+      currentPage === totalPage
+        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+    }`}
+  >
+    &gt;
+  </button>
+
+  {/* Tombol Last */}
+  <button
+    onClick={() => paginate(totalPage)}
+    disabled={currentPage === totalPage}
+    className={`px-3 py-1 mx-1 rounded ${
+      currentPage === totalPage
+        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+    }`}
+  >
+    &gt;&gt;
+  </button>
+</div>
+
     </div>
   );
 };
