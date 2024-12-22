@@ -76,7 +76,8 @@ export const DataKaryawan = () => {
 
         const branches = data.map((users) => users.cabang);
         const uniqueBranches = [...new Set(branches)];
-        setCabangOptions(uniqueBranches);
+        const sortedBranch = uniqueBranches.sort((a, b) => a.localeCompare(b))
+        setCabangOptions(sortedBranch);
       } else {
         throw new Error("Data yang diterima bukan array");
       }
@@ -217,6 +218,7 @@ export const DataKaryawan = () => {
                 showDeleteButton={true}
                 onClickAdd={openModal}
                 onDelete={openModalDelete}
+                showImage={false}
                 // showImageColumn={false} // Add this line to hide the image column
                 
               />

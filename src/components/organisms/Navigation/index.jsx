@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom"; // Import Link for routing
 import LogoText from "../../../assets/logo-text.svg";
 import Logo from "../../../assets/logo.svg";
 import { getUser } from "../../../api/api";
+import { Bars3Icon } from "@heroicons/react/16/solid";
 
 export const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false); // State to toggle menu visibility
@@ -48,7 +49,7 @@ export const Navigation = () => {
           className="text-2xl"
           onClick={toggleMenu} // Toggle the menu when clicked
         >
-          =
+          <Bars3Icon className="h-5 w-5"/>
         </button>
       </div>
 

@@ -9,16 +9,16 @@ import { Date as CurrentDate } from "../../../components/organisms/Date";
 
 export const Dashboard = () => {
   const [pendapatan, setPendapatan] = useState(null);
-  const [pengeluaran, setPengeluaran] = useState(null); // Pengeluaran tetap 10.000
+  const [pengeluaran, setPengeluaran] = useState(null);
   const [totalTransaksi, setTotalTransaksi] = useState(null);
   const [user, setUser] = useState("null");
-  const [error, setError] = useState(null); // Untuk menampilkan pesan error jika ada
+  const [error, setError] = useState(null); 
 
   // Fungsi untuk mendapatkan tanggal dalam format YYYY-MM-DD
   const getFormattedDate = () => {
-    const today = new Date(); // Membuat objek Date untuk tanggal sekarang
+    const today = new Date();
     const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, "0"); // Menambah 1 karena bulan dimulai dari 0
+    const month = String(today.getMonth() + 1).padStart(2, "0");
     const day = String(today.getDate()).padStart(2, "0");
 
     return `${year}-${month}-${day}`;
@@ -29,13 +29,12 @@ export const Dashboard = () => {
   useEffect(() => {
     const fetchPendapatan = async () => {
       try {
-        const tanggal = getFormattedDate(); // Menggunakan getFormattedDate untuk API
-        console.log("Tanggal yang dikirim ke API:", tanggal); // Log tanggal yang dikirim
+        const tanggal = getFormattedDate(); 
+        console.log("Tanggal yang dikirim ke API:", tanggal);
 
-        // Mengambil pendapatan berdasarkan tanggal
         const data = await getPendapatanByDate(tanggal);
 
-        console.log("Data yang diterima dari API:", data); // Log data yang diterima
+        console.log("Data yang diterima dari API:", data);
 
         if (data && data.totalPendapatan !== undefined) {
           setPendapatan(data.totalPendapatan || 0); // Set pendapatan atau 0 jika tidak ada
@@ -51,16 +50,15 @@ export const Dashboard = () => {
 
     const fetchPengeluaran = async () => {
       try {
-        const tanggal = getFormattedDate(); // Menggunakan getFormattedDate untuk API
-        console.log("Tanggal yang dikirim ke API:", tanggal); // Log tanggal yang dikirim
+        const tanggal = getFormattedDate(); 
+        console.log("Tanggal yang dikirim ke API:", tanggal); 
 
-        // Mengambil pendapatan berdasarkan tanggal
         const data = await getPengeluaranbyDate(tanggal);
 
-        console.log("Data yang diterima dari API:", data); // Log data yang diterima
+        console.log("Data yang diterima dari API:", data); 
 
         if (data && data.totalPengeluaran !== undefined) {
-          setPengeluaran(data.totalPengeluaran || 0); // Set pendapatan atau 0 jika tidak ada
+          setPengeluaran(data.totalPengeluaran || 0);
         } else {
           setPengeluaran(0); // Jika totalPendapatan tidak ditemukan
         }
@@ -73,23 +71,22 @@ export const Dashboard = () => {
 
     const fetchTransaksi = async () => {
       try {
-        const tanggal = getFormattedDate(); // Menggunakan getFormattedDate untuk API
-        console.log("Tanggal yang dikirim ke API:", tanggal); // Log tanggal yang dikirim
+        const tanggal = getFormattedDate(); 
+        console.log("Tanggal yang dikirim ke API:", tanggal);
 
-        // Mengambil pendapatan berdasarkan tanggal
         const data = await getTotalTransaksibyDate(tanggal);
 
-        console.log("Data yang diterima dari API:", data); // Log data yang diterima
+        console.log("Data yang diterima dari API:", data); 
 
         if (data && data.totalTransaksiHarian !== undefined) {
-          setTotalTransaksi(data.totalTransaksiHarian || 0); // Set pendapatan atau 0 jika tidak ada
+          setTotalTransaksi(data.totalTransaksiHarian || 0); 
         } else {
-          setTotalTransaksi(0); // Jika totalPendapatan tidak ditemukan
+          setTotalTransaksi(0); 
         }
       } catch (error) {
         console.error("Error fetching pendapatan:", error);
         setError("Gagal mengambil data pendapatan. Coba lagi nanti.");
-        setTotalTransaksi(0); // Set pendapatan ke 0 jika ada error
+        setTotalTransaksi(0); 
       }
     };
 
@@ -110,6 +107,9 @@ export const Dashboard = () => {
     
     fetchPendapatan();
   }, []);
+
+  // Hitung saldo bersih berdasarkan pendapatan dan pembagian 3
+  const saldoBersih = pendapatan !== null ? pendapatan / 3 : 0;
 
   return (
     <div className="w-full h-screen bg-whitew-full bg-slate-50 items-center text-sm justify-center min-h-screen text-black">
@@ -134,8 +134,9 @@ export const Dashboard = () => {
                 ? `${totalTransaksi.toLocaleString()}`
                 : error || "Loading..."}
             </h1>
-            <p className="text-sm">Transaksi Cabang Hari ini</p>
+            <p className="text-sm">Transaksi Hari ini</p>
           </div>
+          
           {/* Pendapatan Card */}
           <div className="flex flex-col p-2 mt-4 items-center justify-center rounded-md bg-green-100">
             <h1 className="text-2xl font-bold text-green-600">
@@ -143,7 +144,7 @@ export const Dashboard = () => {
                 ? `Rp ${pendapatan.toLocaleString()}`
                 : error || "Loading..."}
             </h1>
-            <p className="text-sm">Pendapatan Cabang Hari ini</p>
+            <p className="text-sm">Pendapatan Hari ini</p>
           </div>
 
           <div className="flex flex-col p-2 mt-4 items-center justify-center rounded-md bg-red-100">
@@ -152,9 +153,21 @@ export const Dashboard = () => {
                 ? `Rp ${pengeluaran.toLocaleString()}`
                 : error || "Loading..."}
             </h1>
-            <p className="text-sm">Pengeluaran Cabang Hari ini</p>
+            <p className="text-sm">Pengeluaran Hari ini</p>
           </div>
 
+          {/* Tampilkan saldo bersih hanya untuk admin_cabang */}
+          {isAdmincabang && (
+            <div className="my-4 pt-4 font-bold w-full flex flex-col gap-2 items-center justify-center">
+              <p>Saldo Bersih</p>
+              <h1 className="text-2xl font-bold text-green-600 mt-2">
+                {saldoBersih !== null
+                  ? `Rp ${saldoBersih.toLocaleString()}`
+                  : error || "Loading..."}
+              </h1>
+            </div>
+          )}
+          
           <h1 className="font-bold my-4">Daftar Menu</h1>
           <div className="text-white">
             {!isAdminBesar && isAdmincabang && (

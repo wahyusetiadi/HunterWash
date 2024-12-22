@@ -1,3 +1,4 @@
+import { TrashIcon } from "@heroicons/react/16/solid";
 import React, { useEffect, useState } from "react";
 
 function toTitleCaseWithSpace(str) {
@@ -16,6 +17,7 @@ export const Table = ({
   onAdd,
   disabled = false,
   showUpdateButton = false, // Prop to control showing the Update button
+  showImage = true,
   onUpdate, // Prop for update action
   baseUrl = BASE_URL, // Base URL for image paths
 }) => {
@@ -53,7 +55,11 @@ export const Table = ({
       const end = endDate ? new Date(endDate) : null;
       return (!start || itemDate >= start) && (!end || itemDate <= end);
     });
-    setFilteredData(newFilteredData);
+
+    const sortedData = newFilteredData.sort((a, b) => {
+      return new Date(b.tanggal) - new Date(a.tanggal);
+    })
+    setFilteredData(sortedData);
     setCurrentPage(1); // Reset to first page after applying filter
   };
 
@@ -146,7 +152,7 @@ export const Table = ({
                 <th className="py-2 px-6 text-left">Aksi</th>
               )}
               {/* Kolom Gambar */}
-              <th className="py-2 px-6 text-left">Gambar</th>
+              {showImage && <th className="py-2 px-6 text-left">Gambar</th>}
             </tr>
           </thead>
 
@@ -162,7 +168,7 @@ export const Table = ({
                       {col === "tanggal" ? formatTanggal(item[col]) : item[col]}
                     </td>
                   ))}
-                  
+
                   {(showDeleteButton || showUpdateButton) && (
                     <td className="py-2 px-6 text-left flex">
                       {showUpdateButton && (
@@ -178,26 +184,28 @@ export const Table = ({
                         <button
                           onClick={() => handleDelete(item.id)} // Use item.id here
                           disabled={disabled}
-                          className="px-4 py-2 text-xs font-medium bg-red-500 text-white rounded-lg hover:bg-red-600"
+                          className="px-4 py-2 text-xs font-thin bg-red-500 text-white rounded-lg hover:bg-red-600"
                         >
-                          Hapus
+                          <TrashIcon className="h-5 w-5" />
                         </button>
                       )}
                     </td>
                   )}
-                  <td className="py-2 px-6 text-left">
-                    {item.gambar ? (
-                      <a
-                        href={`${baseUrl}${item.gambar}`}
-                        download={item.gambar.split("/").pop()}
-                        className="text-blue-500 hover:underline"
-                      >
-                        Unduh Gambar
-                      </a>
-                    ) : (
-                      "No Image"
-                    )}
-                  </td>
+                  {showImage && (
+                    <td className="py-2 px-6 text-left">
+                      {item.gambar ? (
+                        <a
+                          href={`${baseUrl}${item.gambar}`}
+                          download={item.gambar.split("/").pop()}
+                          className="text-blue-500 hover:underline"
+                        >
+                          Unduh Gambar
+                        </a>
+                      ) : (
+                        "No Image"
+                      )}
+                    </td>
+                  )}
                 </tr>
               ))
             ) : (
@@ -233,83 +241,82 @@ export const Table = ({
         ))}
       </div> */}
       <div className="flex justify-center mt-4 px-4 py-2">
-  {/* Tombol First */}
-  <button
-    onClick={() => paginate(1)}
-    disabled={currentPage === 1}
-    className={`px-3 py-1 mx-1 rounded ${
-      currentPage === 1
-        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-    }`}
-  >
-     &lt;&lt;
-  </button>
-
-  {/* Tombol Prev */}
-  <button
-    onClick={() => paginate(currentPage - 1)}
-    disabled={currentPage === 1}
-    className={`px-3 py-1 mx-1 rounded ${
-      currentPage === 1
-        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-    }`}
-  >
-     &lt;
-  </button>
-
-  {/* Tombol halaman */}
-  {Array.from({ length: totalPage }, (_, index) => {
-    const pageNumber = index + 1;
-    if (
-      pageNumber >= currentPage - 1 && // Show previous 2 pages
-      pageNumber <= currentPage + 1 // Show next 2 pages
-    ) {
-      return (
+        {/* Tombol First */}
         <button
-          key={pageNumber}
-          onClick={() => paginate(pageNumber)}
+          onClick={() => paginate(1)}
+          disabled={currentPage === 1}
           className={`px-3 py-1 mx-1 rounded ${
-            currentPage === pageNumber
-              ? "bg-blue-500 text-white"
+            currentPage === 1
+              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
               : "bg-gray-200 text-gray-700 hover:bg-gray-300"
           }`}
         >
-          {pageNumber}
+          &lt;&lt;
         </button>
-      );
-    }
-    return null;
-  })}
 
-  {/* Tombol Next */}
-  <button
-    onClick={() => paginate(currentPage + 1)}
-    disabled={currentPage === totalPage}
-    className={`px-3 py-1 mx-1 rounded ${
-      currentPage === totalPage
-        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-    }`}
-  >
-    &gt;
-  </button>
+        {/* Tombol Prev */}
+        <button
+          onClick={() => paginate(currentPage - 1)}
+          disabled={currentPage === 1}
+          className={`px-3 py-1 mx-1 rounded ${
+            currentPage === 1
+              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+          }`}
+        >
+          &lt;
+        </button>
 
-  {/* Tombol Last */}
-  <button
-    onClick={() => paginate(totalPage)}
-    disabled={currentPage === totalPage}
-    className={`px-3 py-1 mx-1 rounded ${
-      currentPage === totalPage
-        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-    }`}
-  >
-    &gt;&gt;
-  </button>
-</div>
+        {/* Tombol halaman */}
+        {Array.from({ length: totalPage }, (_, index) => {
+          const pageNumber = index + 1;
+          if (
+            pageNumber >= currentPage - 1 && // Show previous 2 pages
+            pageNumber <= currentPage + 1 // Show next 2 pages
+          ) {
+            return (
+              <button
+                key={pageNumber}
+                onClick={() => paginate(pageNumber)}
+                className={`px-3 py-1 mx-1 rounded ${
+                  currentPage === pageNumber
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                }`}
+              >
+                {pageNumber}
+              </button>
+            );
+          }
+          return null;
+        })}
 
+        {/* Tombol Next */}
+        <button
+          onClick={() => paginate(currentPage + 1)}
+          disabled={currentPage === totalPage}
+          className={`px-3 py-1 mx-1 rounded ${
+            currentPage === totalPage
+              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+          }`}
+        >
+          &gt;
+        </button>
+
+        {/* Tombol Last */}
+        <button
+          onClick={() => paginate(totalPage)}
+          disabled={currentPage === totalPage}
+          className={`px-3 py-1 mx-1 rounded ${
+            currentPage === totalPage
+              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+          }`}
+        >
+          &gt;&gt;
+        </button>
+      </div>
     </div>
   );
 };

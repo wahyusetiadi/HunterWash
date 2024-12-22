@@ -227,6 +227,23 @@ export const addUser = async (userData) => {
   }
 };
 
+export const deleteTransaction = async (id) => {
+  if(!id) {
+    console.error("ID tidak valid:", id);
+    return;    
+  }
+  try {
+    const response = await axios.delete(`${BASE_URL}/transaksi/${id}`, {
+      headers: getAuthHeaders(),
+    });
+    console.log("Response after delete:", response);
+    return response;    
+  } catch (error) {
+    console.error("Error delete transactions:", error);
+    throw error;    
+  }
+};
+
 // ===== DELETE =====
 export const deleteUser = async (id) => {
   if (!id) {

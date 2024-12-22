@@ -15,10 +15,65 @@ export const Rekap = () => {
   const [transactions, setTransactions] = useState([]); 
   const [expanse, setExpanse] = useState([]); 
 
+  // useEffect(() => {
+  //   const fetchTransactions = async () => {
+  //     try {
+  //       const data = await getTransactions(); 
+  //       setTransactions(data);  
+  //       const branches = data.map(transaction => transaction.cabang);
+  //       const uniqueBranches = [...new Set(branches)];  
+  //       setCabangOptions(uniqueBranches);
+  //     } catch (err) {
+  //       setError('Gagal memuat data transaksi atau cabang.');
+  //       console.error('Error fetching transactions:', err);
+  //     }
+  //   };
+
+  //   const fetchExpanse = async () => {
+  //     try {
+  //       const data = await getPengeluaran(); 
+  //       setExpanse(data); 
+  //     } catch (err) {
+  //       setError('Gagal memuat data pengeluaran.');
+  //       console.error('Error fetching expanse:', err);
+  //     }
+  //   };
+
+  //   fetchTransactions();
+  //   fetchExpanse();
+  // }, []); 
+
+  // const handleExport = async (e) => {
+  //   e.preventDefault(); 
+
+  //   if (!dataType || !branch || !fromDate || !toDate) {
+  //     setError('Semua field harus diisi!');
+  //     return;
+  //   }
+
+  //   setIsLoading(true);
+  //   setError(null);
+
+  //   try {
+  //     if (dataType === 'transaksi') {
+  //       await exportTransaksi(branch, fromDate, toDate); 
+  //     } else if (dataType === 'pengeluaran') {
+  //       await exportPengeluaran(branch, fromDate, toDate);  
+  //     }
+  //   } catch (err) {
+  //     setError('Terjadi kesalahan saat mengekspor data.');
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
         const data = await getTransactions(); 
+        if (!data || data.length === 0) {
+          setError('Tidak ada data transaksi yang tersedia.');
+          return; // Jangan lanjutkan jika data transaksi kosong
+        }
         setTransactions(data);  
         const branches = data.map(transaction => transaction.cabang);
         const uniqueBranches = [...new Set(branches)];  
@@ -28,20 +83,69 @@ export const Rekap = () => {
         console.error('Error fetching transactions:', err);
       }
     };
-
+  
     const fetchExpanse = async () => {
       try {
         const data = await getPengeluaran(); 
+        console.log("Data pengeluaran:", data); // Menambahkan log untuk memeriksa data yang diterima
+        if (!data || data.length === 0) {
+          // setError('Tidak ada data pengeluaran yang tersedia.');
+          return; // Jangan lanjutkan jika data pengeluaran kosong
+        }
         setExpanse(data); 
       } catch (err) {
         setError('Gagal memuat data pengeluaran.');
         console.error('Error fetching expanse:', err);
       }
     };
-
+    
+  
     fetchTransactions();
     fetchExpanse();
-  }, []); 
+  }, []);
+  
+  const handleExport = async (e) => {
+    e.preventDefault(); 
+  
+    if (!dataType || !branch || !fromDate || !toDate) {
+      setError('Semua field harus diisi!');
+      return;
+    }
+  
+    // Validasi jika tidak ada transaksi atau pengeluaran sesuai filter
+    const filteredTransactions = transactions.filter(transaction => 
+      transaction.cabang === branch && transaction.tanggal >= fromDate && transaction.tanggal <= toDate
+    );
+  
+    const filteredExpanse = expanse.filter(exp => 
+      exp.cabang === branch && exp.tanggal >= fromDate && exp.tanggal <= toDate
+    );
+  
+    if (dataType === 'transaksi' && filteredTransactions.length === 0) {
+      setError('Tidak ada data transaksi yang cocok dengan filter.');
+      return;
+    } else if (dataType === 'pengeluaran' && filteredExpanse.length === 0) {
+      setError('Tidak ada data pengeluaran yang cocok dengan filter.');
+      return;
+    }
+  
+    setIsLoading(true);
+    setError(null);
+  
+    try {
+      if (dataType === 'transaksi') {
+        await exportTransaksi(branch, fromDate, toDate); 
+      } else if (dataType === 'pengeluaran') {
+        await exportPengeluaran(branch, fromDate, toDate);  
+      }
+    } catch (err) {
+      setError('Terjadi kesalahan saat mengekspor data.');
+      console.error('Error exporting data:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -63,29 +167,7 @@ export const Rekap = () => {
     }
   };
 
-  const handleExport = async (e) => {
-    e.preventDefault(); 
 
-    if (!dataType || !branch || !fromDate || !toDate) {
-      setError('Semua field harus diisi!');
-      return;
-    }
-
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      if (dataType === 'transaksi') {
-        await exportTransaksi(branch, fromDate, toDate); 
-      } else if (dataType === 'pengeluaran') {
-        await exportPengeluaran(branch, fromDate, toDate);  
-      }
-    } catch (err) {
-      setError('Terjadi kesalahan saat mengekspor data.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   return (
     <div className="w-full bg-slate-50">
