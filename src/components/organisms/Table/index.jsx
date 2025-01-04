@@ -148,11 +148,11 @@ export const Table = ({
                     : toTitleCase(toTitleCaseWithSpace(col))}
                 </th>
               ))}
+              {showImage && <th className="py-2 px-6 text-left">Gambar</th>}
               {(showDeleteButton || showUpdateButton) && (
                 <th className="py-2 px-6 text-left">Aksi</th>
               )}
               {/* Kolom Gambar */}
-              {showImage && <th className="py-2 px-6 text-left">Gambar</th>}
             </tr>
           </thead>
 
@@ -168,7 +168,21 @@ export const Table = ({
                       {col === "tanggal" ? formatTanggal(item[col]) : item[col]}
                     </td>
                   ))}
-
+                  {showImage && (
+                    <td className="py-2 px-6 text-left">
+                      {item.gambar ? (
+                        <a
+                          href={`${baseUrl}${item.gambar}`}
+                          download={item.gambar.split("/").pop()}
+                          className="text-blue-500 hover:underline"
+                        >
+                          Unduh Gambar
+                        </a>
+                      ) : (
+                        "No Image"
+                      )}
+                    </td>
+                  )}
                   {(showDeleteButton || showUpdateButton) && (
                     <td className="py-2 px-6 text-left flex">
                       {showUpdateButton && (
@@ -191,21 +205,7 @@ export const Table = ({
                       )}
                     </td>
                   )}
-                  {showImage && (
-                    <td className="py-2 px-6 text-left">
-                      {item.gambar ? (
-                        <a
-                          href={`${baseUrl}${item.gambar}`}
-                          download={item.gambar.split("/").pop()}
-                          className="text-blue-500 hover:underline"
-                        >
-                          Unduh Gambar
-                        </a>
-                      ) : (
-                        "No Image"
-                      )}
-                    </td>
-                  )}
+
                 </tr>
               ))
             ) : (
@@ -245,11 +245,10 @@ export const Table = ({
         <button
           onClick={() => paginate(1)}
           disabled={currentPage === 1}
-          className={`px-3 py-1 mx-1 rounded ${
-            currentPage === 1
-              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-          }`}
+          className={`px-3 py-1 mx-1 rounded ${currentPage === 1
+            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+            : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+            }`}
         >
           &lt;&lt;
         </button>
@@ -258,11 +257,10 @@ export const Table = ({
         <button
           onClick={() => paginate(currentPage - 1)}
           disabled={currentPage === 1}
-          className={`px-3 py-1 mx-1 rounded ${
-            currentPage === 1
-              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-          }`}
+          className={`px-3 py-1 mx-1 rounded ${currentPage === 1
+            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+            : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+            }`}
         >
           &lt;
         </button>
@@ -278,11 +276,10 @@ export const Table = ({
               <button
                 key={pageNumber}
                 onClick={() => paginate(pageNumber)}
-                className={`px-3 py-1 mx-1 rounded ${
-                  currentPage === pageNumber
-                    ? "bg-blue-500 text-white"
-                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                }`}
+                className={`px-3 py-1 mx-1 rounded ${currentPage === pageNumber
+                  ? "bg-blue-500 text-white"
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  }`}
               >
                 {pageNumber}
               </button>
@@ -295,11 +292,10 @@ export const Table = ({
         <button
           onClick={() => paginate(currentPage + 1)}
           disabled={currentPage === totalPage}
-          className={`px-3 py-1 mx-1 rounded ${
-            currentPage === totalPage
-              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-          }`}
+          className={`px-3 py-1 mx-1 rounded ${currentPage === totalPage
+            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+            : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+            }`}
         >
           &gt;
         </button>
@@ -308,11 +304,10 @@ export const Table = ({
         <button
           onClick={() => paginate(totalPage)}
           disabled={currentPage === totalPage}
-          className={`px-3 py-1 mx-1 rounded ${
-            currentPage === totalPage
-              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-          }`}
+          className={`px-3 py-1 mx-1 rounded ${currentPage === totalPage
+            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+            : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+            }`}
         >
           &gt;&gt;
         </button>
