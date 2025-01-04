@@ -196,7 +196,7 @@ export const Income = () => {
             data={filteredTransactions}
             showDeleteButton={true}
             onDelete={openModalDelete}
-            showImage={false}
+            showImage={true}
           />
         )}
 
