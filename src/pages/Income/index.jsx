@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Navigation } from "../../components/organisms/Navigation";
 import { Table } from "../../components/organisms/Table";
-import { deleteTransaction, getTransactions, getUser } from "../../api/api"; // Ensure this imports the getTransactions function
+import {
+  deleteTransaction,
+  getTotalTransaksiByTanggal,
+  getTransactions,
+  getUser,
+} from "../../api/api"; // Ensure this imports the getTransactions function
 
 export const Income = () => {
   const [transactions, setTransactions] = useState([]);
@@ -11,9 +16,28 @@ export const Income = () => {
   const [user, setUser] = useState(null);
   const [cabangOptions, setCabangOptions] = useState([]);
   const [selectedCabang, setSelectedCabang] = useState("semua"); // Default to 'semua'
-  const [isModal, setIsModal] = useState(false);
-  const [itemToDelete, setItemToDelete] = useState(null);
+  const [totalTransaksi, setTotalTransaksi] = useState(0);
+  const [totalMobil, setTotalMobil] = useState(0);
+  const [totalMotor, setTotalMotor] = useState(0);
+  const [totalPendapatan, setTotalPendapatan] = useState(0);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [modalDelete, setModalDelete] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
+
+  // Handle Branch Change
+  const handleCabangChange = (event) => {
+    setSelectedCabang(event.target.value);
+  };
+
+  // Handle Date Change
+  const handleStartDateChange = (e) => {
+    setStartDate(e.target.value);
+  };
+
+  const handleEndDateChange = (e) => {
+    setEndDate(e.target.value);
+  };
 
   const openModalDelete = (itemOrId) => {
     if (typeof itemOrId === "object" && itemOrId !== null) {
@@ -40,14 +64,6 @@ export const Income = () => {
     setError(null);
   };
 
-  const openModal = () => {
-    setIsModal(true);
-  };
-
-  const closeModal = () => {
-    setIsModal(false);
-  };
-
   // Fetch user data
   useEffect(() => {
     const fetchUser = async () => {
@@ -65,7 +81,7 @@ export const Income = () => {
     };
 
     fetchUser();
-  }, []); // Run only once when the component is mounted
+  }, []);
 
   // Fetch transactions data
   useEffect(() => {
@@ -73,37 +89,94 @@ export const Income = () => {
       try {
         const data = await getTransactions(); // Fetch all transactions
         setTransactions(data);
-
+  
         let filteredData = [];
-
-        // If logged in as admin_besar
+  
+        // Set default startDate and endDate for current month if not already set
+        if (!startDate && !endDate) {
+          const currentDate = new Date();
+          const currentYear = currentDate.getFullYear();
+          const currentMonth = currentDate.getMonth(); // 0-based index
+  
+          // Set start of current month (1st January at 00:00)
+          const startOfMonth = new Date(currentYear, currentMonth, 1);
+          startOfMonth.setHours(0, 0, 0, 0); // Set to 00:00 of 1st Jan in local time
+  
+          // Add 7 hours to adjust to GMT+7
+          startOfMonth.setHours(startOfMonth.getHours() + 7);
+  
+          // Set end of current month (last day of the month at 23:59:59)
+          const endOfMonth = new Date(currentYear, currentMonth + 1, 0); // Get last day of the month
+          endOfMonth.setHours(23, 59, 59, 999); // Set to 23:59:59 of last day in local time
+  
+          // Add 7 hours to adjust to GMT+7
+          endOfMonth.setHours(endOfMonth.getHours() + 7);
+  
+          // Update the startDate and endDate state
+          setStartDate(startOfMonth.toISOString().split("T")[0]);
+          setEndDate(endOfMonth.toISOString().split("T")[0]);
+        }
+  
+        // Filter by role and cabang selection
         if (user?.role === "admin_besar") {
           filteredData = data; // Admin besar can view all transactions
-
-          // Filter by branch if selected
           if (selectedCabang !== "semua") {
             filteredData = filteredData.filter(
               (transaction) => transaction.cabang === selectedCabang
             );
           }
-        }
-        // If logged in as admin_cabang
-        else if (user?.role === "admin_cabang") {
-          // Admin cabang can only see transactions made by the same petugas
+        } else if (user?.role === "admin_cabang") {
           filteredData = data.filter(
             (transaction) => transaction.petugas === user?.name
           );
-
-          // If a specific branch is selected, filter by that branch as well
           if (selectedCabang !== "semua") {
             filteredData = filteredData.filter(
               (transaction) => transaction.cabang === selectedCabang
             );
           }
         }
-
+  
+        // Apply date filtering based on selected startDate and endDate
+        if (startDate) {
+          filteredData = filteredData.filter(
+            (transaction) =>
+              new Date(transaction.tanggal) >= new Date(startDate)
+          );
+        }
+  
+        if (endDate) {
+          filteredData = filteredData.filter(
+            (transaction) => new Date(transaction.tanggal) <= new Date(endDate)
+          );
+        }
+  
+        // Set the filtered transactions and calculate totals
         setFilteredTransactions(filteredData);
-
+  
+        const totalPendapatan = filteredData.reduce((total, transaction) => {
+          return total + (transaction.biaya || 0); // Sum of 'biaya' for each transaction
+        }, 0);
+  
+        const formattedTotalPendapatan = new Intl.NumberFormat("id-ID", {
+          style: "currency",
+          currency: "IDR",
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0,
+        }).format(totalPendapatan);
+  
+        const totalMotor = filteredData.filter(
+          (transaction) => transaction.jenis === "Motor"
+        ).length;
+        const totalMobil = filteredData.filter(
+          (transaction) => transaction.jenis === "Mobil"
+        ).length;
+        const totalTransaksi = totalMotor + totalMobil;
+  
+        setTotalMotor(totalMotor);
+        setTotalMobil(totalMobil);
+        setTotalTransaksi(totalTransaksi);
+        setTotalPendapatan(formattedTotalPendapatan);
+  
         // Filter branches for dropdown options
         const branches = data.map((transaction) => transaction.cabang);
         const uniqueBranches = [...new Set(branches)];
@@ -116,16 +189,10 @@ export const Income = () => {
         setLoading(false);
       }
     };
-
+  
     fetchTransactions();
-  }, [selectedCabang, user?.name]); // Ensure this includes selectedCabang and user.name
-
-  // Handle branch change
-  const handleCabangChange = (event) => {
-    const newCabang = event.target.value;
-    console.log("Selected Cabang:", newCabang); // Debug log to check if branch is selected properly
-    setSelectedCabang(newCabang); // Update selected branch
-  };
+  }, [selectedCabang, user?.name, startDate, endDate]);
+  
 
   const handleDeleteTransaction = async (id) => {
     if (!id) {
@@ -137,11 +204,10 @@ export const Income = () => {
     try {
       await deleteTransaction(id);
       closeModalDelete();
-      setIsModal(false);
       setError(null);
     } catch (error) {
-      console.error("Error delete transactions", error);
       setError("Gagal menghapus transaksi");
+      console.error("Error delete transactions", error);
     } finally {
       setLoading(false);
     }
@@ -159,6 +225,7 @@ export const Income = () => {
       </div>
       <div className="px-5 text-sm">
         <form>
+          {/* Branch Selection */}
           <div className="mb-4 flex flex-col items-start z-0">
             <label htmlFor="cabang" className="font-semibold mb-2">
               Cabang
@@ -180,6 +247,40 @@ export const Income = () => {
               )}
             </select>
           </div>
+
+          {/* Date Selection */}
+          <div className="w-full flex gap-4">
+            <div className="mb-4 flex flex-col items-start z-0">
+              <label htmlFor="startDate" className="font-semibold mb-2">
+                Tanggal Mulai
+              </label>
+              <input
+                type="date"
+                id="startDate"
+                value={startDate}
+                onChange={handleStartDateChange}
+                className="border p-2 rounded bg-white w-full"
+              />
+            </div>
+            <div className="mb-4 flex flex-col items-start z-0">
+              <label htmlFor="endDate" className="font-semibold mb-2">
+                Tanggal Akhir
+              </label>
+              <input
+                type="date"
+                id="endDate"
+                value={endDate}
+                onChange={handleEndDateChange}
+                className="border p-2 rounded bg-white w-full"
+              />
+            </div>
+          </div>
+
+          {/* <div className="text-xs font-semibold mt-4">
+            <h1>Total Transaksi Mobil: {totalMobil}</h1>
+            <h1>Total Transaksi Motor: {totalMotor}</h1>
+            <h1>Total Transaksi Keseluruhan: {totalTransaksi}</h1>
+          </div> */}
         </form>
 
         {/* Show loading if data is still being loaded */}
@@ -197,35 +298,40 @@ export const Income = () => {
             showDeleteButton={true}
             onDelete={openModalDelete}
             showImage={true}
+            showJumlahTransaksi={true}
+            totalMobil={totalMobil}
+            totalMotor={totalMotor}
+            totalTransaksi={totalTransaksi}
+            totalPendapatan={totalPendapatan}
           />
         )}
+      </div>
 
-        {modalDelete && itemToDelete && (
-          <div className="fixed inset-0 px-5 bg-gray-500 bg-opacity-50 flex justify-center items-center">
-            <div className="bg-white p-6 rounded-lg shadow-lg px-4">
-              <h2 className="text-lg font-semibold">Konfirmasi penghapusan</h2>
-              <p className="mt-2">
-                Apakah anda yakin ingin menghapus data{" "}
-                {itemToDelete.nomorPolisi}?
-              </p>
-              <div className="mt-4 flex justify-end space-x-4">
-                <button
-                  onClick={() => handleDeleteTransaction(itemToDelete.id)}
-                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-                >
-                  Ya
-                </button>
-                <button
-                  onClick={closeModalDelete}
-                  className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-                >
-                  Batal
-                </button>
-              </div>
+      {/* Modal Delete */}
+      {modalDelete && itemToDelete && (
+        <div className="fixed inset-0 px-5 bg-gray-500 bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white p-6 rounded-lg shadow-lg px-4">
+            <h2 className="text-lg font-semibold">Konfirmasi penghapusan</h2>
+            <p className="mt-2">
+              Apakah anda yakin ingin menghapus data {itemToDelete.nomorPolisi}?
+            </p>
+            <div className="mt-4 flex justify-end space-x-4">
+              <button
+                onClick={() => handleDeleteTransaction(itemToDelete.id)}
+                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+              >
+                Ya
+              </button>
+              <button
+                onClick={closeModalDelete}
+                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+              >
+                Batal
+              </button>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };

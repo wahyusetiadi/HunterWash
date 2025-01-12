@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // const BASE_URL = "https://wash.huntersmithnusantara.id/api/v1"; // Menyimpan URL dasar untuk API
-const BASE_URL = import.meta.env.VITE_BASE_URL
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 // ===== Local Storage =====
 const getAuthHeaders = () => {
@@ -61,10 +61,10 @@ export const getCabangOptions = async () => {
 
 // ===== TRANSAKSI =====
 // GET
-export const getTotalTransaksibyDate = async (tanggal) => {
+export const getTotalTransaksiHarian = async () => {
   try {
     const response = await axios.get(
-      `${BASE_URL}/transaksi/transaksi-hari-ini?tanggal=${tanggal}`,
+      `${BASE_URL}/transaksi/transaksi-hari-ini`,
       {
         headers: getAuthHeaders(),
       }
@@ -76,22 +76,48 @@ export const getTotalTransaksibyDate = async (tanggal) => {
   }
 };
 
-// POST
-// export const addTransaction = async (transactionData) => {
-//   try {
-//     const response = await axios.post(
-//       `${BASE_URL}/transaksi`,
-//       transactionData,
-//       {
-//         headers: getAuthHeaders(),
-//       }
-//     );
-//     return response; // Mengembalikan response dari server jika berhasil
-//   } catch (error) {
-//     console.error("Error adding transaction:", error);
-//     throw error; // Jika gagal, lempar error
-//   }
-// };
+export const getTotalTransaksiByTanggal = async (startDate, endDate, tanggal) => {
+  try {
+    let url = `${BASE_URL}/transaksi/transaksi-by-date`;
+    const headers = getAuthHeaders();
+    let params = {};
+
+    // If both startDate and endDate are provided, use them for a date range
+    if (startDate && endDate) {
+      params.start_date = startDate;
+      params.end_date = endDate;
+    } 
+    // If only tanggal is provided, use it for a single date
+    else if (tanggal) {
+      params.tanggal = tanggal;
+    } else {
+      // If neither startDate nor endDate is provided, set default to one month ago
+      const lastMonthDate = new Date();
+      lastMonthDate.setMonth(lastMonthDate.getMonth() - 1); // Go back 1 month
+      const lastMonthStartDate = new Date(lastMonthDate.getFullYear(), lastMonthDate.getMonth(), 1); // First date of last month
+      const lastMonthEndDate = new Date(lastMonthDate.getFullYear(), lastMonthDate.getMonth() + 1, 0); // Last date of last month
+
+      // Format dates as 'YYYY-MM-DD'
+      const formattedStartDate = lastMonthStartDate.toISOString().split('T')[0];
+      const formattedEndDate = lastMonthEndDate.toISOString().split('T')[0];
+
+      params.start_date = formattedStartDate;
+      params.end_date = formattedEndDate;
+    }
+
+    // Send GET request with appropriate query parameters
+    const response = await axios.get(url, {
+      headers: headers,
+      params: params,
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching transaksi by date or date range:", error);
+    throw error;
+  }
+};
+
 
 export const addTransaction = async (transactionData) => {
   try {
@@ -99,7 +125,8 @@ export const addTransaction = async (transactionData) => {
 
     // Menambahkan semua data transaksi lainnya ke formData
     formData.append("nomorPolisi", transactionData.nomorPolisi);
-    formData.append("jenisKendaraan", transactionData.jenisKendaraan);
+    formData.append("jenis", transactionData.jenis);
+    formData.append("tipe", transactionData.tipe);
     formData.append("biaya", transactionData.biaya);
     formData.append("petugas", transactionData.petugas);
     formData.append("cabang", transactionData.cabang);
@@ -228,19 +255,19 @@ export const addUser = async (userData) => {
 };
 
 export const deleteTransaction = async (id) => {
-  if(!id) {
+  if (!id) {
     console.error("ID tidak valid:", id);
-    return;    
+    return;
   }
   try {
     const response = await axios.delete(`${BASE_URL}/transaksi/${id}`, {
       headers: getAuthHeaders(),
     });
     console.log("Response after delete:", response);
-    return response;    
+    return response;
   } catch (error) {
     console.error("Error delete transactions:", error);
-    throw error;    
+    throw error;
   }
 };
 
@@ -328,7 +355,6 @@ export const exportPengeluaran = async (cabang, fromDate, toDate) => {
   }
 };
 
-
 // ===== BIAYA =====
 
 export const getBiaya = async () => {
@@ -355,19 +381,19 @@ export const addBiaya = async (biayaData) => {
 };
 
 export const deleteBiaya = async (id) => {
-  if(!id) {
+  if (!id) {
     console.error("ID tidak ditemukan", id);
     return;
   }
 
-  try{
+  try {
     const response = await axios.delete(`${BASE_URL}/biaya/${id}`, {
       headers: getAuthHeaders(),
     });
     console.log("Response after delete", response);
     return response;
   } catch (error) {
-    console.error('Error delete biaya', error);
-    throw error;    
+    console.error("Error delete biaya", error);
+    throw error;
   }
 };

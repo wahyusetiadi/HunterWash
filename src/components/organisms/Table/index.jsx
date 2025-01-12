@@ -9,11 +9,17 @@ const BASE_URL = import.meta.env.VITE_BASE_URL;
 export const Table = ({
   data,
   filterData = true,
-  itemsPerPage = 5,
+  itemsPerPage = 10,
   showDeleteButton = false,
   onDelete,
   showAddButton = false,
   onClickAdd,
+  showJumlahTransaksi = false,
+  rangeDate = false,
+  totalMobil,
+  totalMotor,
+  totalTransaksi,
+  totalPendapatan,
   onAdd,
   disabled = false,
   showUpdateButton = false, // Prop to control showing the Update button
@@ -58,7 +64,7 @@ export const Table = ({
 
     const sortedData = newFilteredData.sort((a, b) => {
       return new Date(b.tanggal) - new Date(a.tanggal);
-    })
+    });
     setFilteredData(sortedData);
     setCurrentPage(1); // Reset to first page after applying filter
   };
@@ -91,26 +97,28 @@ export const Table = ({
     <div>
       {filterData && (
         <div className="flex flex-col gap-4">
-          <div className="flex gap-4">
-            <div className="flex flex-col items-start">
-              <label className="font-semibold mb-2">Dari tanggal</label>
-              <input
-                type="date"
-                className="w-full p-1 border bg-white rounded-lg focus:ring-2 focus:ring-blue-500"
-                value={startDate}
-                onChange={(e) => handleChange(e, setStartDate)}
-              />
+          {rangeDate && (
+            <div className="flex gap-4">
+              <div className="flex flex-col items-start">
+                <label className="font-semibold mb-2">Dari tanggal</label>
+                <input
+                  type="date"
+                  className="w-full p-1 border bg-white rounded-lg focus:ring-2 focus:ring-blue-500"
+                  value={startDate}
+                  onChange={(e) => handleChange(e, setStartDate)}
+                />
+              </div>
+              <div className="flex flex-col items-start">
+                <label className="font-semibold mb-2">Sampai tanggal</label>
+                <input
+                  type="date"
+                  className="w-full p-1 border bg-white rounded-lg focus:ring-2 focus:ring-blue-500"
+                  value={endDate}
+                  onChange={(e) => handleChange(e, setEndDate)}
+                />
+              </div>
             </div>
-            <div className="flex flex-col items-start">
-              <label className="font-semibold mb-2">Sampai tanggal</label>
-              <input
-                type="date"
-                className="w-full p-1 border bg-white rounded-lg focus:ring-2 focus:ring-blue-500"
-                value={endDate}
-                onChange={(e) => handleChange(e, setEndDate)}
-              />
-            </div>
-          </div>
+          )}
           <button
             className="px-4 py-2 bg-blue-500 text-white rounded-lg"
             onClick={handleFilter}
@@ -130,7 +138,32 @@ export const Table = ({
           </button>
         </div>
       )}
-
+      {showJumlahTransaksi && (
+        <div className="text-xs mt-4 w-full grid grid-cols-2 gap-4">
+          <div className="text-center">
+            <div className="border-2 bg-blue-700 rounded-lg text-white px-2 py-1">
+              <h1>Total Transaksi Mobil</h1>
+              <p className="text-sm font-bold">{totalMobil}</p>
+            </div>
+            <br />
+            <div className="border-2 bg-green-600 rounded-lg text-white px-2 py-1">
+              <h1>Total Transaksi Motor</h1>
+              <p className="text-sm font-bold">{totalMotor}</p>
+            </div>
+          </div>
+          <div className="text-center">
+            <div className="border-2 border-blue-600 rounded-lg bg-blue-100 text-blue-600 px-2 py-1">
+              <h1>Total Transaksi</h1>
+              <p className="text-sm font-bold">{totalTransaksi}</p>
+            </div>
+            <br />
+            <div className="border-2 border-green-600 bg-green-100 rounded-lg text-green-600 px-2 py-1 text-clip">
+              <h1>Total Pendapatan</h1>
+              <p className="text-sm font-bold">{totalPendapatan}</p>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="overflow-x-auto mt-4 rounded-lg">
         <table
           border="1"
@@ -205,7 +238,6 @@ export const Table = ({
                       )}
                     </td>
                   )}
-
                 </tr>
               ))
             ) : (
@@ -245,10 +277,11 @@ export const Table = ({
         <button
           onClick={() => paginate(1)}
           disabled={currentPage === 1}
-          className={`px-3 py-1 mx-1 rounded ${currentPage === 1
-            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-            : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-            }`}
+          className={`px-3 py-1 mx-1 rounded ${
+            currentPage === 1
+              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+          }`}
         >
           &lt;&lt;
         </button>
@@ -257,10 +290,11 @@ export const Table = ({
         <button
           onClick={() => paginate(currentPage - 1)}
           disabled={currentPage === 1}
-          className={`px-3 py-1 mx-1 rounded ${currentPage === 1
-            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-            : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-            }`}
+          className={`px-3 py-1 mx-1 rounded ${
+            currentPage === 1
+              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+          }`}
         >
           &lt;
         </button>
@@ -276,10 +310,11 @@ export const Table = ({
               <button
                 key={pageNumber}
                 onClick={() => paginate(pageNumber)}
-                className={`px-3 py-1 mx-1 rounded ${currentPage === pageNumber
-                  ? "bg-blue-500 text-white"
-                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                  }`}
+                className={`px-3 py-1 mx-1 rounded ${
+                  currentPage === pageNumber
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                }`}
               >
                 {pageNumber}
               </button>
@@ -292,10 +327,11 @@ export const Table = ({
         <button
           onClick={() => paginate(currentPage + 1)}
           disabled={currentPage === totalPage}
-          className={`px-3 py-1 mx-1 rounded ${currentPage === totalPage
-            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-            : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-            }`}
+          className={`px-3 py-1 mx-1 rounded ${
+            currentPage === totalPage
+              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+          }`}
         >
           &gt;
         </button>
@@ -304,10 +340,11 @@ export const Table = ({
         <button
           onClick={() => paginate(totalPage)}
           disabled={currentPage === totalPage}
-          className={`px-3 py-1 mx-1 rounded ${currentPage === totalPage
-            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-            : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-            }`}
+          className={`px-3 py-1 mx-1 rounded ${
+            currentPage === totalPage
+              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+          }`}
         >
           &gt;&gt;
         </button>

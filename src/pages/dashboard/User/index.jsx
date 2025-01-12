@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getPendapatanByDate, getPengeluaranbyDate, getTotalTransaksibyDate, getUser } from "../../../api/api";
+import { getPendapatanByDate, getPengeluaranbyDate, getTotalTransaksiHarian, getUser } from "../../../api/api";
 import IncomeLogo from "../../../assets/income.svg";
 import ExportLogo from "../../../assets/export.svg";
 import BikeLogo from "../../../assets/bike.svg";
@@ -74,7 +74,7 @@ export const Dashboard = () => {
         const tanggal = getFormattedDate(); 
         console.log("Tanggal yang dikirim ke API:", tanggal);
 
-        const data = await getTotalTransaksibyDate(tanggal);
+        const data = await getTotalTransaksiHarian(tanggal);
 
         console.log("Data yang diterima dari API:", data); 
 
