@@ -89,34 +89,34 @@ export const Income = () => {
       try {
         const data = await getTransactions(); // Fetch all transactions
         setTransactions(data);
-  
+
         let filteredData = [];
-  
+
         // Set default startDate and endDate for current month if not already set
         if (!startDate && !endDate) {
           const currentDate = new Date();
           const currentYear = currentDate.getFullYear();
           const currentMonth = currentDate.getMonth(); // 0-based index
-  
+
           // Set start of current month (1st January at 00:00)
           const startOfMonth = new Date(currentYear, currentMonth, 1);
           startOfMonth.setHours(0, 0, 0, 0); // Set to 00:00 of 1st Jan in local time
-  
+
           // Add 7 hours to adjust to GMT+7
           startOfMonth.setHours(startOfMonth.getHours() + 7);
-  
+
           // Set end of current month (last day of the month at 23:59:59)
           const endOfMonth = new Date(currentYear, currentMonth + 1, 0); // Get last day of the month
           endOfMonth.setHours(23, 59, 59, 999); // Set to 23:59:59 of last day in local time
-  
+
           // Add 7 hours to adjust to GMT+7
           endOfMonth.setHours(endOfMonth.getHours() + 7);
-  
+
           // Update the startDate and endDate state
           setStartDate(startOfMonth.toISOString().split("T")[0]);
           setEndDate(endOfMonth.toISOString().split("T")[0]);
         }
-  
+
         // Filter by role and cabang selection
         if (user?.role === "admin_besar") {
           filteredData = data; // Admin besar can view all transactions
@@ -135,7 +135,7 @@ export const Income = () => {
             );
           }
         }
-  
+
         // Apply date filtering based on selected startDate and endDate
         if (startDate) {
           filteredData = filteredData.filter(
@@ -143,27 +143,47 @@ export const Income = () => {
               new Date(transaction.tanggal) >= new Date(startDate)
           );
         }
-  
+
         if (endDate) {
           filteredData = filteredData.filter(
             (transaction) => new Date(transaction.tanggal) <= new Date(endDate)
           );
         }
-  
+
         // Set the filtered transactions and calculate totals
         setFilteredTransactions(filteredData);
-  
+
         const totalPendapatan = filteredData.reduce((total, transaction) => {
-          return total + (transaction.biaya || 0); // Sum of 'biaya' for each transaction
+          let saldoBersih = 0;
+
+          // Kondisi berdasarkan role user dan petugas
+          if (user?.role === "admin_besar") {
+            // Jika admin_besar, tidak perlu dibagi 3
+            saldoBersih = transaction.biaya || 0;
+          } else if (user?.role === "admin_cabang") {
+            // Jika role admin_cabang, dibagi 3 dan dibulatkan ke ribuan terdekat
+            saldoBersih =
+              transaction.biaya !== null
+                ? Math.round(transaction.biaya / 3 / 1000) * 1000
+                : 0;
+          } else {
+            // Jika selain admin, misalnya petugas biasa
+            saldoBersih =
+              transaction.biaya !== null
+                ? Math.round(transaction.biaya / 3 / 1000) * 1000
+                : 0;
+          }
+
+          return total + saldoBersih; // Menambahkan saldo bersih ke total
         }, 0);
-  
+
         const formattedTotalPendapatan = new Intl.NumberFormat("id-ID", {
           style: "currency",
           currency: "IDR",
           minimumFractionDigits: 0,
           maximumFractionDigits: 0,
         }).format(totalPendapatan);
-  
+
         const totalMotor = filteredData.filter(
           (transaction) => transaction.jenis === "Motor"
         ).length;
@@ -171,12 +191,12 @@ export const Income = () => {
           (transaction) => transaction.jenis === "Mobil"
         ).length;
         const totalTransaksi = totalMotor + totalMobil;
-  
+
         setTotalMotor(totalMotor);
         setTotalMobil(totalMobil);
         setTotalTransaksi(totalTransaksi);
         setTotalPendapatan(formattedTotalPendapatan);
-  
+
         // Filter branches for dropdown options
         const branches = data.map((transaction) => transaction.cabang);
         const uniqueBranches = [...new Set(branches)];
@@ -189,10 +209,9 @@ export const Income = () => {
         setLoading(false);
       }
     };
-  
+
     fetchTransactions();
   }, [selectedCabang, user?.name, startDate, endDate]);
-  
 
   const handleDeleteTransaction = async (id) => {
     if (!id) {

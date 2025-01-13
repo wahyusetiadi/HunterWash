@@ -172,10 +172,11 @@ const dataURItoBlob = (dataURI) => {
 };
 
 // GET
-export const getTransactions = async () => {
+export const getTransactions = async (petugas, tanggalAwal, tanggalAkhir) => {
   try {
     const response = await axios.get(`${BASE_URL}/transaksi`, {
       headers: getAuthHeaders(),
+      params: { petugas, tanggalAwal, tanggalAkhir }, // Menambahkan filter ke query params
     });
     return response.data; // Mengembalikan data transaksi dari server
   } catch (error) {
@@ -183,6 +184,7 @@ export const getTransactions = async () => {
     throw error; // Lempar error jika gagal
   }
 };
+
 
 // ===== PENGELUARAN =====
 // GET

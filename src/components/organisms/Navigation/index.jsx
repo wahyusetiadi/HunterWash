@@ -109,6 +109,13 @@ export const Navigation = () => {
                     Data Karyawan
                   </Link>
                 </li>
+                <li>
+                  <Link
+                    to="/fee-karyawan"
+                    className="block py-2 px-4 hover:bg-gray-200">
+                    Fee Karyawan
+                    </Link>
+                </li>
               </>
             )}
             <li>
