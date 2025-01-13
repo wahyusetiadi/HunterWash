@@ -109,7 +109,7 @@ export const Dashboard = () => {
   }, []);
 
   // Hitung saldo bersih berdasarkan pendapatan dan pembagian 3
-  const saldoBersih = pendapatan !== null ? pendapatan / 3 : 0;
+  const saldoBersih = pendapatan !== null ? Math.round(pendapatan / 3 / 1000) * 1000 : 0;
 
   return (
     <div className="w-full h-screen bg-whitew-full bg-slate-50 items-center text-sm justify-center min-h-screen text-black">

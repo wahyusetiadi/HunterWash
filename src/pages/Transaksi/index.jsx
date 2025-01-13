@@ -161,8 +161,8 @@ export const Transaksi = () => {
     biayaOption !== "Pilih Biaya" &&
     (biayaOption !== "lainnya" || (biayaOption === "lainnya" && biaya)) &&
     cabangOption !== "Pilih Cabang" &&
-    petugasOption !== "Pilih Petugas" &&
-    capturedImage;
+    petugasOption !== "Pilih Petugas"
+    // capturedImage;
 
   const handleSaveImage = (imageUrl) => {
     setCapturedImage(imageUrl);

@@ -9,6 +9,7 @@ import { Pengeluaran } from './pages/Pengeluaran'
 import { NotePengeluaran } from './pages/NotePengeluaran'
 import { DataKaryawan } from './pages/DataKaryawan'
 import ProtectedLayout from './layout/ProtectedLayout'
+import { FeeKaryawan } from './pages/FeeKaryawan'
 
 export default function App() {
   return (
@@ -23,6 +24,7 @@ export default function App() {
           <Route path='/pengeluaran' element={<Pengeluaran />} />
           <Route path='/catatan-pengeluaran' element={<NotePengeluaran />} />
           <Route path='/data-karyawan' element={<DataKaryawan />} />
+          <Route path='fee-karyawan' element={<FeeKaryawan />} />
         </Route>
       </Routes>
     </BrowserRouter>
