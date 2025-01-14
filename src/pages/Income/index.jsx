@@ -20,6 +20,7 @@ export const Income = () => {
   const [totalMobil, setTotalMobil] = useState(0);
   const [totalMotor, setTotalMotor] = useState(0);
   const [totalPendapatan, setTotalPendapatan] = useState(0);
+  const [totalPoin, setTotalPoin] = useState("")
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [modalDelete, setModalDelete] = useState(false);
@@ -97,23 +98,25 @@ export const Income = () => {
           const currentDate = new Date();
           const currentYear = currentDate.getFullYear();
           const currentMonth = currentDate.getMonth(); // 0-based index
-
+  
           // Set start of current month (1st January at 00:00)
           const startOfMonth = new Date(currentYear, currentMonth, 1);
-          startOfMonth.setHours(0, 0, 0, 0); // Set to 00:00 of 1st Jan in local time
-
-          // Add 7 hours to adjust to GMT+7
-          startOfMonth.setHours(startOfMonth.getHours() + 7);
-
+  
+          // Fixing the issue with time zone by creating new date instance with UTC
+          const startOfMonthCorrected = new Date(Date.UTC(currentYear, currentMonth, 1, 0, 0, 0));
+  
+          // Adjust to GMT+7
+          startOfMonthCorrected.setHours(startOfMonthCorrected.getHours() + 7);
+  
           // Set end of current month (last day of the month at 23:59:59)
           const endOfMonth = new Date(currentYear, currentMonth + 1, 0); // Get last day of the month
           endOfMonth.setHours(23, 59, 59, 999); // Set to 23:59:59 of last day in local time
-
+  
           // Add 7 hours to adjust to GMT+7
           endOfMonth.setHours(endOfMonth.getHours() + 7);
-
+  
           // Update the startDate and endDate state
-          setStartDate(startOfMonth.toISOString().split("T")[0]);
+          setStartDate(startOfMonthCorrected.toISOString().split("T")[0]);
           setEndDate(endOfMonth.toISOString().split("T")[0]);
         }
 
@@ -122,16 +125,16 @@ export const Income = () => {
           filteredData = data; // Admin besar can view all transactions
           if (selectedCabang !== "semua") {
             filteredData = filteredData.filter(
-              (transaction) => transaction.cabang === selectedCabang
+                (transaction) => transaction.cabang === selectedCabang
             );
           }
         } else if (user?.role === "admin_cabang") {
           filteredData = data.filter(
-            (transaction) => transaction.petugas === user?.name
+              (transaction) => transaction.petugas === user?.name
           );
           if (selectedCabang !== "semua") {
             filteredData = filteredData.filter(
-              (transaction) => transaction.cabang === selectedCabang
+                (transaction) => transaction.cabang === selectedCabang
             );
           }
         }
@@ -139,42 +142,52 @@ export const Income = () => {
         // Apply date filtering based on selected startDate and endDate
         if (startDate) {
           filteredData = filteredData.filter(
-            (transaction) =>
-              new Date(transaction.tanggal) >= new Date(startDate)
+              (transaction) =>
+                  new Date(transaction.tanggal) >= new Date(startDate)
           );
         }
 
         if (endDate) {
           filteredData = filteredData.filter(
-            (transaction) => new Date(transaction.tanggal) <= new Date(endDate)
+              (transaction) => new Date(transaction.tanggal) <= new Date(endDate)
           );
         }
 
         // Set the filtered transactions and calculate totals
         setFilteredTransactions(filteredData);
 
+        // Calculate points based on vehicle type (Motor = 1, Mobil = 2)
+        const totalPoin = filteredData.reduce((total, transaction) => {
+          if (transaction.jenis === "Motor") {
+            return total + 1; // 1 point for Motor
+          } else if (transaction.jenis === "Mobil") {
+            return total + 2; // 2 points for Mobil
+          }
+          return total;
+        }, 0);
+
+        console.log(`Total Poin: ${totalPoin}`);
+
+        // Calculate total Pendapatan
         const totalPendapatan = filteredData.reduce((total, transaction) => {
           let saldoBersih = 0;
 
           // Kondisi berdasarkan role user dan petugas
           if (user?.role === "admin_besar") {
-            // Jika admin_besar, tidak perlu dibagi 3
             saldoBersih = transaction.biaya || 0;
           } else if (user?.role === "admin_cabang") {
-            // Jika role admin_cabang, dibagi 3 dan dibulatkan ke ribuan terdekat
             saldoBersih =
-              transaction.biaya !== null
-                ? Math.round(transaction.biaya / 3 / 1000) * 1000
-                : 0;
+                transaction.biaya !== null
+                    ? Math.round(transaction.biaya / 3 / 1000) * 1000
+                    : 0;
           } else {
-            // Jika selain admin, misalnya petugas biasa
             saldoBersih =
-              transaction.biaya !== null
-                ? Math.round(transaction.biaya / 3 / 1000) * 1000
-                : 0;
+                transaction.biaya !== null
+                    ? Math.round(transaction.biaya / 3 / 1000) * 1000
+                    : 0;
           }
 
-          return total + saldoBersih; // Menambahkan saldo bersih ke total
+          return total + saldoBersih;
         }, 0);
 
         const formattedTotalPendapatan = new Intl.NumberFormat("id-ID", {
@@ -184,11 +197,12 @@ export const Income = () => {
           maximumFractionDigits: 0,
         }).format(totalPendapatan);
 
+        // Count types of vehicles
         const totalMotor = filteredData.filter(
-          (transaction) => transaction.jenis === "Motor"
+            (transaction) => transaction.jenis === "Motor"
         ).length;
         const totalMobil = filteredData.filter(
-          (transaction) => transaction.jenis === "Mobil"
+            (transaction) => transaction.jenis === "Mobil"
         ).length;
         const totalTransaksi = totalMotor + totalMobil;
 
@@ -196,6 +210,7 @@ export const Income = () => {
         setTotalMobil(totalMobil);
         setTotalTransaksi(totalTransaksi);
         setTotalPendapatan(formattedTotalPendapatan);
+        setTotalPoin(totalPoin); // Set total points
 
         // Filter branches for dropdown options
         const branches = data.map((transaction) => transaction.cabang);
@@ -212,6 +227,7 @@ export const Income = () => {
 
     fetchTransactions();
   }, [selectedCabang, user?.name, startDate, endDate]);
+
 
   const handleDeleteTransaction = async (id) => {
     if (!id) {
@@ -314,6 +330,7 @@ export const Income = () => {
         {!loading && !error && (
           <Table
             data={filteredTransactions}
+            user={user}
             showDeleteButton={true}
             onDelete={openModalDelete}
             showImage={true}
@@ -322,6 +339,7 @@ export const Income = () => {
             totalMotor={totalMotor}
             totalTransaksi={totalTransaksi}
             totalPendapatan={totalPendapatan}
+            totalPoin={totalPoin}
           />
         )}
       </div>

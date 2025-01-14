@@ -65,6 +65,24 @@ export const Navigation = () => {
                 Beranda
               </Link>
             </li>
+            <li>
+              <Link
+                to="/leaderboard"
+                className="block py-2 px-4 hover:bg-gray-200"
+              >
+                Leaderboard
+              </Link>
+            </li>
+            {!isAdmincabang && isAdminBesar && (
+              <li>
+              <Link
+                to="/pengeluaran"
+                className="block py-2 px-4 hover:bg-gray-200"
+              >
+                Input Pengeluaran
+              </Link>
+            </li>
+            )}
             {!isAdminBesar && isAdmincabang && (
               <>
                 <li>
@@ -73,14 +91,6 @@ export const Navigation = () => {
                     className="block py-2 px-4 hover:bg-gray-200"
                   >
                     Input Transaksi
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/pengeluaran"
-                    className="block py-2 px-4 hover:bg-gray-200"
-                  >
-                    Input Pengeluaran
                   </Link>
                 </li>
               </>

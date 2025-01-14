@@ -38,7 +38,8 @@ export const Pengeluaran = () => {
 
         const branches = filteredCabang.map(branch => branch.cabang);
         const uniqueBranches = [...new Set(branches)];
-        setCabangOption(uniqueBranches);
+        const sortedBranch = uniqueBranches.sort((a, b) => a.localeCompare(b));
+        setCabangOption(sortedBranch);
       } catch (error) {
         console.error("Error fetching Cabang", error);
 

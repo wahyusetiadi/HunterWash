@@ -8,6 +8,7 @@ function toTitleCaseWithSpace(str) {
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 export const Table = ({
   data,
+    user,
   filterData = true,
   itemsPerPage = 10,
   showDeleteButton = false,
@@ -19,7 +20,7 @@ export const Table = ({
   totalMobil,
   totalMotor,
   totalTransaksi,
-  totalPendapatan,
+  totalPendapatan, totalPoin,
   onAdd,
   disabled = false,
   showUpdateButton = false, // Prop to control showing the Update button
@@ -87,6 +88,9 @@ export const Table = ({
       onDelete(id);
     }
   };
+
+  const isAdmin = user?.role === "admin_besar";
+  const isUser = user?.role === "admin_cabang";
 
   const handleChange = (e, callback) => {
     e.preventDefault();
@@ -164,12 +168,19 @@ export const Table = ({
           </div>
         </div>
       )}
+      {!isAdmin && isUser && (
+          <div
+              className='w-full flex items-center justify-center gap-2 px-6 py-2 mt-2 border border-green-500 rounded-lg'>
+            <p className='text-sm'>Poin Kamu</p>  <p className='text-base font-semibold text-green-500'>{totalPoin}</p>
+          </div>
+      )}
+
       <div className="overflow-x-auto mt-4 rounded-lg">
         <table
-          border="1"
-          cellPadding="8"
-          cellSpacing="0"
-          className="min-w-full bg-white border border-gray-200 rounded-lg shadow-lg"
+            border="1"
+            cellPadding="8"
+            cellSpacing="0"
+            className="min-w-full bg-white border border-gray-200 rounded-lg shadow-lg"
         >
           <thead className="bg-blue-400 text-gray-800 rounded">
             <tr>
