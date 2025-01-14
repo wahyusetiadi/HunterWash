@@ -399,3 +399,15 @@ export const deleteBiaya = async (id) => {
     throw error;
   }
 };
+
+export const getLeaderboard = async () => {
+  try {
+    const response = await axios.get(`${BASE_URL}/transaksi/leaderboard`, {
+      headers: getAuthHeaders(), // Pastikan Anda mengirimkan header autentikasi yang benar
+    });
+    return response.data; // Langsung ambil data dari response
+  } catch (error) {
+    console.error('Error fetching leaderboard:', error);
+    throw error; // Lempar error jika gagal
+  }
+};
