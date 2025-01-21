@@ -175,7 +175,7 @@ export const Table = ({
           </div>
       )}
 
-      <div className="overflow-x-auto mt-4 rounded-lg">
+      <div className="overflow-x-auto mt-4 rounded-lg text-nowrap">
         <table
             border="1"
             cellPadding="8"
