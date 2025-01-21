@@ -44,7 +44,8 @@ export const FeeKaryawan = () => {
 
         // Ambil daftar cabang dari data transaksi
         const cabangSet = new Set(data.map((transaksi) => transaksi.cabang));
-        setCabangList([...cabangSet]); // Set cabang list
+        const sortedCabangList = [...cabangSet].sort();
+        setCabangList(sortedCabangList); // Set cabang list
 
         // Jika cabang dipilih, filter petugas berdasarkan cabang tersebut
         if (cabang) {
@@ -210,7 +211,7 @@ export const FeeKaryawan = () => {
             ))}
           </select>
         </div>
-        <div className="my-4 flex items-center justify-center text-sm">
+        <div className="my-4 flex items-center justify-start gap-4 text-sm">
           <div className="mb-4">
             <label htmlFor="tanggalAwal" className="mr-2">
               Tanggal Awal:{" "}
@@ -240,7 +241,7 @@ export const FeeKaryawan = () => {
         {/* Total Saldo Bersih */}
         <div className="py-4 mb-4 bg-green-500 text-white rounded-lg text-center w-full items-center justify-center">
           <h2 className="text-base">
-            Total Saldo Bersih:
+            Total Saldo Bersih Petugas:
             <h1 className="font-bold text-xl">{totalSaldoBersih}</h1>
           </h2>
         </div>
@@ -248,8 +249,10 @@ export const FeeKaryawan = () => {
         {/* Daftar Transaksi */}
         <div className="overflow-x-auto text-nowrap">
           <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow-lg">
-            <thead className="bg-blue-300">
+            <thead className="bg-blue-400 text-sm">
               <tr>
+                <th className="py-2 px-6 text-left">No</th>{" "}
+                {/* Kolom untuk nomor urut */}
                 <th className="py-2 px-6 text-left">Nomor Polisi</th>
                 <th className="py-2 px-6 text-left border-l">Jenis</th>
                 <th className="py-2 px-6 text-left border-l">Tipe</th>
@@ -260,8 +263,8 @@ export const FeeKaryawan = () => {
                 <th className="py-2 px-6 text-left border-l">Tanggal</th>
               </tr>
             </thead>
-            <tbody className="text-gray-700 text-xs">
-              {paginatedTransaksi.map((transaksi) => {
+            <tbody className="text-slate-700 text-xs">
+              {paginatedTransaksi.map((transaksi, index) => {
                 const saldoBersih =
                   transaksi.biaya !== null
                     ? Math.round(transaksi.biaya / 3 / 1000) * 1000
@@ -273,8 +276,14 @@ export const FeeKaryawan = () => {
                     ? 5000
                     : 0;
 
+                // Menentukan nomor urut berdasarkan halaman yang aktif
+                const noUrut = (currentPage - 1) * entriesPerPage + (index + 1);
+
                 return (
                   <tr key={transaksi.id} className="border-b">
+                    <td className="py-2 px-6 text-left">
+                      {noUrut} {/* Menampilkan nomor urut */}
+                    </td>
                     <td className="py-2 px-6 text-left">
                       {transaksi.nomorPolisi}
                     </td>
@@ -295,7 +304,11 @@ export const FeeKaryawan = () => {
                       {transaksi.petugas}
                     </td>
                     <td className="py-2 px-6 text-left border-l">
-                      {transaksi.tanggal}
+                      {new Intl.DateTimeFormat("id-ID", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      }).format(new Date(transaksi.tanggal))}
                     </td>
                   </tr>
                 );
@@ -335,7 +348,7 @@ export const FeeKaryawan = () => {
 
           <div className="w-full grid grid-cols-2 gap-2 mt-2 text-center">
             {!tanggalAwal || !tanggalAkhir ? (
-              <div className="w-full text-center text-sm text-nowrap">
+              <div className="w-full text-center text-sm text-nowrap col-span-2">
                 Set tanggal untuk melihat saldo bersih per petugas
               </div>
             ) : (
@@ -366,7 +379,7 @@ export const FeeKaryawan = () => {
 
           <div className="w-full grid grid-cols-2 gap-2 mt-2 text-center">
             {!tanggalAwal || !tanggalAkhir ? (
-              <div className="w-full text-center text-sm text-nowrap">
+              <div className="w-full text-center text-sm text-nowrap col-span-2">
                 Set tanggal untuk melihat deposit petugas
               </div>
             ) : (
