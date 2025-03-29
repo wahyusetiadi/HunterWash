@@ -49,7 +49,7 @@ export const Navigation = () => {
           className="text-2xl"
           onClick={toggleMenu} // Toggle the menu when clicked
         >
-          <Bars3Icon className="h-5 w-5"/>
+          <Bars3Icon className="h-5 w-5" />
         </button>
       </div>
 
@@ -65,25 +65,25 @@ export const Navigation = () => {
                 Beranda
               </Link>
             </li>
-            <li>
+            {/* <li>
               <Link
                 to="/leaderboard"
                 className="block py-2 px-4 hover:bg-gray-200"
               >
                 Leaderboard
               </Link>
-            </li>
+            </li> */}
             {!isAdmincabang && isAdminBesar && (
               <li>
-              <Link
-                to="/pengeluaran"
-                className="block py-2 px-4 hover:bg-gray-200"
-              >
-                Input Pengeluaran
-              </Link>
-            </li>
+                <Link
+                  to="/pengeluaran"
+                  className="block py-2 px-4 hover:bg-gray-200"
+                >
+                  Input Pengeluaran
+                </Link>
+              </li>
             )}
-            {!isAdminBesar && isAdmincabang && (
+            {isAdminBesar && !isAdmincabang && (
               <>
                 <li>
                   <Link
@@ -122,20 +122,25 @@ export const Navigation = () => {
                 <li>
                   <Link
                     to="/fee-karyawan"
-                    className="block py-2 px-4 hover:bg-gray-200">
+                    className="block py-2 px-4 hover:bg-gray-200"
+                  >
                     Fee Karyawan
-                    </Link>
+                  </Link>
                 </li>
               </>
             )}
-            <li>
-              <Link
-                to="/pemasukan"
-                className="block py-2 px-4 hover:bg-gray-200"
-              >
-                Data Pemasukan & Transaksi
-              </Link>
-            </li>
+            {isAdminBesar && !isAdmincabang && (
+              <>
+                <li>
+                  <Link
+                    to="/pemasukan"
+                    className="block py-2 px-4 hover:bg-gray-200"
+                  >
+                    Data Pemasukan & Transaksi
+                  </Link>
+                </li>
+              </>
+            )}
             {/* <li>
               <Link to="/auth"
               className="block py-2 px-4 hover:bg-gray-200"

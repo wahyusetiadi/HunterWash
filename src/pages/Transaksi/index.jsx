@@ -29,8 +29,9 @@ export const Transaksi = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const userData = await getUser();
-        setUser(userData);
+        const userData = await getCabangOptions();
+        setPetugasOption(userData);
+        console.log("Petugas List", userData);
       } catch (error) {
         console.error("Error fetching data", error);
       }
@@ -91,6 +92,8 @@ export const Transaksi = () => {
     console.log("Biaya Option:", biayaOption);
     console.log("Biaya Input:", biaya);
     console.log("Petugas Option:", petugasOption);
+    console.log("Petugas", petugas);
+
     console.log("Cabang Option:", cabangOption);
 
     // Validasi Form: Pastikan semua field terisi dengan benar
@@ -120,14 +123,14 @@ export const Transaksi = () => {
     }
 
     const finalBiaya = biayaOption === "lainnya" ? biaya : biayaOption;
-    const finalPetugas = user?.name || petugasOption[0];
+    // const finalPetugas = user?.name || petugasOption[0];
 
     const transactionData = {
       nomorPolisi,
       jenis: jenisOption,
       tipe,
       biaya: finalBiaya,
-      petugas: finalPetugas,
+      petugas: petugas,
       cabang: selectedCabang,
       image: capturedImage,
     };
@@ -148,6 +151,7 @@ export const Transaksi = () => {
       setBiayaOption("");
       setPetugasOption([]);
       setCapturedImage(null);
+      window.location.reload(false);
     } catch (error) {
       console.error("Error saat menambahkan transaksi:", error);
       alert(error.response?.data?.message || "Gagal mengirim data transaksi!");
@@ -160,9 +164,9 @@ export const Transaksi = () => {
     tipe &&
     biayaOption !== "Pilih Biaya" &&
     (biayaOption !== "lainnya" || (biayaOption === "lainnya" && biaya)) &&
-    cabangOption !== "Pilih Cabang" &&
-    petugasOption !== "Pilih Petugas"
-    // capturedImage;
+    cabangOption !== "Pilih Cabang";
+  // petugasOption !== "Pilih Petugas"
+  // capturedImage;
 
   const handleSaveImage = (imageUrl) => {
     setCapturedImage(imageUrl);
@@ -290,12 +294,27 @@ export const Transaksi = () => {
             <label htmlFor="petugas" className="font-semibold mb-2">
               Petugas
             </label>
-            <input
+            {/* <input
               type="text"
-              placeholder={user?.name}
+              value={petugas}
               className="w-full mt-4 px-4 py-2 border bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              disabled
-            />
+              onChange={(e) => setPetugas(e.target.value)}
+            /> */}
+            <select
+              value={petugas}
+              disabled={selectedCabang === "pusat"}
+              onChange={(e) => setPetugas(e.target.value)}
+              className="w-full mt-4 px-4 py-2 border bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">Pilih Petugas</option>
+              {selectedCabang !== "pusat" &&
+                petugasOption.length > 0 &&
+                petugasOption.map((petugsaData) => (
+                  <option key={petugsaData.id} value={petugsaData.name}>
+                    {petugsaData.name}
+                  </option>
+                ))}
+            </select>
           </div>
 
           <button
