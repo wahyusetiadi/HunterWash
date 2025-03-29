@@ -25,6 +25,8 @@ export const Income = () => {
   const [endDate, setEndDate] = useState("");
   const [modalDelete, setModalDelete] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
+  const [failedMessage, setFailedMessage] = useState("");
+  const [deleteMessage, setDeleteMessage] = useState("");
 
   // Handle Branch Change
   const handleCabangChange = (event) => {
@@ -238,8 +240,12 @@ export const Income = () => {
     setLoading(true);
     try {
       await deleteTransaction(id);
+      setDeleteMessage(`Transaksi dengan ID: ${id} berhasil dihapus`)
       closeModalDelete();
       setError(null);
+      setTimeout(() => {
+        setDeleteMessage("");
+      }, 3000)
     } catch (error) {
       setError("Gagal menghapus transaksi");
       console.error("Error delete transactions", error);
@@ -258,6 +264,19 @@ export const Income = () => {
           </h1>
         </div>
       </div>
+      {deleteMessage && (
+        <div className="w-full flex items-center justify-center">
+        <div className="w-[300px] bg-red-100 rounded-lg text-center text-red-500 py-4 mb-4 relative">
+          {deleteMessage}
+          <button
+            className="absolute top-1 right-2 text-lg font-bold text-red-600"
+            onClick={() => setDeleteMessage("")}
+          >
+            &times;
+          </button>
+        </div>
+      </div>
+      )}
       <div className="px-5 text-sm">
         <form>
           {/* Branch Selection */}

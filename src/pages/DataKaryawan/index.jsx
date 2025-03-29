@@ -15,6 +15,9 @@ export const DataKaryawan = () => {
   const [modalDelete, setModalDelete] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
   const [loggedUser, setLoggedUser] = useState(null);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [failedMessage, setFailedMessage] = useState("");
+  const [deleteMessage, setDeleteMessage] = useState("");
 
   const openModalDelete = (itemOrId) => {
     // Handle both cases: when receiving full item object or just ID
@@ -59,6 +62,8 @@ export const DataKaryawan = () => {
   const fetchLoginUser = async () => {
     try {
       const user = await getUser();
+      console.log('List Data Karyawan', user);
+      
       setLoggedUser(user);
     } catch (error) {
       console.error("Error fetching logged-in user:", error);
@@ -76,7 +81,7 @@ export const DataKaryawan = () => {
 
         const branches = data.map((users) => users.cabang);
         const uniqueBranches = [...new Set(branches)];
-        const sortedBranch = uniqueBranches.sort((a, b) => a.localeCompare(b))
+        const sortedBranch = uniqueBranches.sort((a, b) => a.localeCompare(b));
         setCabangOptions(sortedBranch);
       } else {
         throw new Error("Data yang diterima bukan array");
@@ -99,11 +104,16 @@ export const DataKaryawan = () => {
     try {
       await addUser(userData);
       await fetchUser();
+      setSuccessMessage("User berhasil ditambahkan");
       setIsModal(false);
       setError(null);
+      setTimeout(() => {
+        setSuccessMessage("");
+      }, 3000)
     } catch (error) {
       console.error("Error adding user:", error);
-      setError("Gagal Menambah User");
+      // setError("Gagal Menambah User");
+      setFailedMessage("Gagal Menambahkan User");
     } finally {
       setLoading(false);
     }
@@ -119,8 +129,12 @@ export const DataKaryawan = () => {
     try {
       await deleteUser(id);
       await fetchUser();
+      setDeleteMessage(`User dengan ID:${id} berhasil dihapus`);
       closeModalDelete();
       setError(null);
+      setTimeout(() => {
+        setDeleteMessage("")
+      }, 3000)
     } catch (error) {
       console.error("Error Delete User:", error);
       setError("Gagal Menghapus User");
@@ -167,6 +181,46 @@ export const DataKaryawan = () => {
           <h1 className="text-base font-bold text-black">Data Karyawan</h1>
         </div>
       </div>
+      {successMessage && (
+        <div className="w-full flex items-center justify-center">
+          <div className="w-[300px] bg-green-100 rounded-lg text-center text-green-500 py-4 mb-4 relative">
+            {successMessage}
+            <button
+              className="absolute top-1 right-2 text-lg font-bold text-green-600"
+              onClick={() => setSuccessMessage("")} // Close the message
+            >
+              &times; {/* This is the "X" character */}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {failedMessage && (
+        <div className="w-full flex items-center justify-center">
+          <div className="w-[300px] bg-red-100 rounded-lg text-center text-red-500 py-4 mb-4 relative">
+            {failedMessage}
+            <button
+              className="absolute top-1 right-2 text-lg font-bold text-red-600"
+              onClick={() => setFailedMessage("")} 
+            >
+              &times;
+            </button>
+          </div>
+        </div>
+      )}
+      {deleteMessage && (
+        <div className="w-full flex items-center justify-center">
+        <div className="w-[300px] bg-red-100 rounded-lg text-center text-red-500 py-4 mb-4 relative">
+          {deleteMessage}
+          <button
+            className="absolute top-1 right-2 text-lg font-bold text-red-600"
+            onClick={() => setDeleteMessage("")}
+          >
+            &times;
+          </button>
+        </div>
+      </div>
+      )}
 
       <div className="px-5 text-sm">
         <form>
@@ -220,7 +274,6 @@ export const DataKaryawan = () => {
                 onDelete={openModalDelete}
                 showImage={false}
                 // showImageColumn={false} // Add this line to hide the image column
-                
               />
             )}
           </div>
